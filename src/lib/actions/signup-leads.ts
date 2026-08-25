@@ -26,10 +26,17 @@ export async function saveSignupLeadAction(input: {
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) return;
 
+  // Only keep a mobile that's actually phone-shaped (no letters, 8+ digits).
+  const rawMobile = clean(input.mobile, 40);
+  const mobile =
+    rawMobile && /^[0-9+\-() ]+$/.test(rawMobile) && (rawMobile.match(/\d/g)?.length ?? 0) >= 8
+      ? rawMobile
+      : null;
+
   const details = {
     firstName: clean(input.firstName),
     lastName: clean(input.lastName),
-    mobile: clean(input.mobile, 40),
+    mobile,
     businessName: clean(input.businessName),
   };
 

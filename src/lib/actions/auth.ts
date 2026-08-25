@@ -25,6 +25,9 @@ export async function signupAction(
   if (!businessName || !name || !email || !password) {
     return { error: "All fields are required." };
   }
+  if (mobile && !(/^[0-9+\-() ]+$/.test(mobile) && (mobile.match(/\d/g)?.length ?? 0) >= 8)) {
+    return { error: "Enter a valid mobile number." };
+  }
   if (password.length < 8) {
     return { error: "Password must be at least 8 characters." };
   }

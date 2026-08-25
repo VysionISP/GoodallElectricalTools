@@ -16,6 +16,7 @@ export function SignupWizard() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [mobile, setMobile] = useState("");
+  const [mobileError, setMobileError] = useState<string | undefined>();
   const [businessName, setBusinessName] = useState("");
   const [abn, setAbn] = useState("");
   const [error, setError] = useState<string | undefined>();
@@ -91,6 +92,11 @@ export function SignupWizard() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                if (!isValidMobile(mobile)) {
+                  setMobileError("Enter a valid mobile number — digits only, e.g. 0400 123 456.");
+                  return;
+                }
+                setMobileError(undefined);
                 void saveSignupLeadAction({ email, firstName, lastName, mobile });
                 setStep(2);
               }}
@@ -116,12 +122,18 @@ export function SignupWizard() {
               <input
                 type="tel"
                 required
+                inputMode="tel"
                 value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
+                onChange={(e) => {
+                  // Phone characters only — digits, spaces, +, brackets, dashes.
+                  setMobile(e.target.value.replace(/[^0-9+\-() ]/g, ""));
+                  setMobileError(undefined);
+                }}
                 placeholder="Mobile number"
                 autoComplete="tel"
                 className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
               />
+              {mobileError && <p className="text-sm font-medium text-red-300">{mobileError}</p>}
               <BigButton type="submit">Next</BigButton>
               <BackLink onClick={() => setStep(0)} />
             </form>
@@ -198,6 +210,11 @@ export function SignupWizard() {
       </main>
     </div>
   );
+}
+
+/** Phone-shaped: only phone characters, and at least 8 actual digits. */
+function isValidMobile(value: string) {
+  return /^[0-9+\-() ]+$/.test(value) && (value.match(/\d/g)?.length ?? 0) >= 8;
 }
 
 function StepShell({
