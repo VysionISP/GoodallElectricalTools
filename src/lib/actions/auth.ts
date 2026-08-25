@@ -17,13 +17,18 @@ export async function signupAction(
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
+  const mobile = String(formData.get("mobile") ?? "").trim() || null;
   const password = String(formData.get("password") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
   if (!businessName || !name || !email || !password) {
     return { error: "All fields are required." };
   }
   if (password.length < 8) {
     return { error: "Password must be at least 8 characters." };
+  }
+  if (password !== confirmPassword) {
+    return { error: "Passwords don't match." };
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });
@@ -40,6 +45,8 @@ export async function signupAction(
   await prisma.business.create({
     data: {
       name: businessName,
+      // Their mobile seeds the business phone; onboarding lets them change it.
+      phone: mobile,
       users: {
         create: {
           name,
@@ -51,6 +58,9 @@ export async function signupAction(
       },
     },
   });
+
+  // Signup finished — this person is no longer an abandoned-signup lead.
+  await prisma.signupLead.deleteMany({ where: { email } });
 
   await signIn("credentials", {
     email,

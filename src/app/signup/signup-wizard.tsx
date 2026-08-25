@@ -3,17 +3,19 @@
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
 import { signupAction } from "@/lib/actions/auth";
+import { saveSignupLeadAction } from "@/lib/actions/signup-leads";
 
-// Full-bleed, one-question-at-a-time signup (email -> name -> business +
-// password). Details stay in client state until the final step creates the
-// account in one server action; the in-app onboarding wizard then collects
-// the rest of the business profile.
+// Full-bleed, one-question-at-a-time signup (email -> name & mobile ->
+// business + password). Each completed step also saves what's known so far
+// as a signup lead, so an abandoned signup still leaves the platform owner
+// a contact to follow up; finishing signup removes the lead again.
 
 export function SignupWizard() {
   const [step, setStep] = useState(0);
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [mobile, setMobile] = useState("");
   const [error, setError] = useState<string | undefined>();
   const [pending, startTransition] = useTransition();
 
@@ -23,6 +25,11 @@ export function SignupWizard() {
     formData.set("email", email);
     formData.set("firstName", firstName);
     formData.set("lastName", lastName);
+    formData.set("mobile", mobile);
+    if (formData.get("password") !== formData.get("confirmPassword")) {
+      setError("Passwords don't match.");
+      return;
+    }
     setError(undefined);
     startTransition(async () => {
       const result = await signupAction(undefined, formData);
@@ -55,6 +62,8 @@ export function SignupWizard() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                // Fire-and-forget lead capture — never hold up the visitor.
+                void saveSignupLeadAction({ email });
                 setStep(1);
               }}
               className="space-y-3"
@@ -78,6 +87,7 @@ export function SignupWizard() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                void saveSignupLeadAction({ email, firstName, lastName, mobile });
                 setStep(2);
               }}
               className="space-y-3"
@@ -99,6 +109,15 @@ export function SignupWizard() {
                   className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
                 />
               </div>
+              <input
+                type="tel"
+                required
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                placeholder="Mobile number"
+                autoComplete="tel"
+                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+              />
               <BigButton type="submit">Next</BigButton>
               <BackLink onClick={() => setStep(0)} />
             </form>
@@ -125,6 +144,15 @@ export function SignupWizard() {
                 minLength={8}
                 autoComplete="new-password"
                 placeholder="Password (8+ characters)"
+                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+              />
+              <input
+                name="confirmPassword"
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                placeholder="Confirm password"
                 className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
               />
               {error && <p className="text-sm font-medium text-red-300">{error}</p>}
