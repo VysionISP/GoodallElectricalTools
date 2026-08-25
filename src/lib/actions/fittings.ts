@@ -25,6 +25,16 @@ export async function createFittingAction(
   if (!reference || !location) return { error: "Reference and location are required." };
   if (!FITTING_TYPES.includes(fittingType)) return { error: "Invalid fitting type." };
 
+  const modelId = String(formData.get("modelId") ?? "").trim() || null;
+  if (modelId) {
+    const model = await prisma.fittingModel.findUnique({ where: { id: modelId } });
+    if (!model || (model.businessId !== null && model.businessId !== session.user.businessId)) {
+      return { error: "Selected device model not found." };
+    }
+  }
+  const installedDateRaw = String(formData.get("installedDate") ?? "").trim();
+  const installedDate = installedDateRaw ? new Date(installedDateRaw) : null;
+
   let photoPath: string | undefined;
   const photo = formData.get("photo");
   if (photo instanceof File && photo.size > 0) {
@@ -36,7 +46,7 @@ export async function createFittingAction(
   }
 
   await prisma.fitting.create({
-    data: { siteId, reference, location, fittingType, photoPath },
+    data: { siteId, reference, location, fittingType, photoPath, modelId, installedDate },
   });
 
   revalidatePath(`/sites/${siteId}`);
@@ -59,6 +69,26 @@ export async function updateFittingAction(
   const fittingType = String(formData.get("fittingType") ?? "EMERGENCY_LIGHT") as FittingType;
   if (!reference || !location) return { error: "Reference and location are required." };
 
+  // These fields aren't part of the quick inline edit form — only touch them
+  // when the caller actually included the field, so a plain reference/
+  // location/photo edit never silently clears a device's catalog model or
+  // install date.
+  let modelId: string | null | undefined;
+  if (formData.has("modelId")) {
+    modelId = String(formData.get("modelId") ?? "").trim() || null;
+    if (modelId) {
+      const model = await prisma.fittingModel.findUnique({ where: { id: modelId } });
+      if (!model || (model.businessId !== null && model.businessId !== session.user.businessId)) {
+        return { error: "Selected device model not found." };
+      }
+    }
+  }
+  let installedDate: Date | null | undefined;
+  if (formData.has("installedDate")) {
+    const raw = String(formData.get("installedDate") ?? "").trim();
+    installedDate = raw ? new Date(raw) : null;
+  }
+
   let photoPath: string | undefined;
   const photo = formData.get("photo");
   if (photo instanceof File && photo.size > 0) {
@@ -72,7 +102,14 @@ export async function updateFittingAction(
 
   await prisma.fitting.update({
     where: { id: fittingId },
-    data: { reference, location, fittingType, ...(photoPath ? { photoPath } : {}) },
+    data: {
+      reference,
+      location,
+      fittingType,
+      ...(modelId !== undefined ? { modelId } : {}),
+      ...(installedDate !== undefined ? { installedDate } : {}),
+      ...(photoPath ? { photoPath } : {}),
+    },
   });
 
   revalidatePath(`/sites/${fitting.siteId}`);

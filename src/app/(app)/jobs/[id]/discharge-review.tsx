@@ -1,10 +1,12 @@
 "use client";
 
 import { useTransition } from "react";
-import type { Fitting, FittingTestResult } from "@/generated/prisma/client";
+import type { Fitting, FittingModel, FittingTestResult } from "@/generated/prisma/client";
 import { confirmDischargeReviewAction, reopenDischargeReviewAction } from "@/lib/actions/discharge-test";
 import { Badge, Button, Card } from "@/components/ui";
 import { TestChecklist } from "./test-checklist";
+
+type FittingWithModel = Fitting & { model: FittingModel | null };
 
 export function DischargeReview({
   jobId,
@@ -13,7 +15,7 @@ export function DischargeReview({
   done,
 }: {
   jobId: string;
-  fittings: Fitting[];
+  fittings: FittingWithModel[];
   results: FittingTestResult[];
   done: boolean;
 }) {
@@ -51,14 +53,23 @@ export function DischargeReview({
 
         {failedFittings.length > 0 && (
           <div className="mt-4">
-            <p className="mb-2 text-xs font-medium uppercase text-slate-400">Failed fittings</p>
+            <p className="mb-2 text-xs font-medium uppercase text-slate-400">
+              Works required — fittings to replace
+            </p>
             <ul className="space-y-1">
               {failedFittings.map((f) => (
-                <li key={f.id} className="flex items-center justify-between rounded-lg bg-red-50 px-3 py-2 text-sm">
-                  <span className="font-medium text-red-900">
-                    {f.reference} — {f.location}
-                  </span>
-                  <Badge color="red">Fail</Badge>
+                <li key={f.id} className="rounded-lg bg-red-50 px-3 py-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-red-900">
+                      {f.reference} — {f.location}
+                    </span>
+                    <Badge color="red">Fail</Badge>
+                  </div>
+                  <p className="mt-0.5 text-xs text-red-700">
+                    {f.model
+                      ? `Replacement needed: ${f.model.brand} ${f.model.model}`
+                      : "Replacement needed — model not recorded for this fitting"}
+                  </p>
                 </li>
               ))}
             </ul>

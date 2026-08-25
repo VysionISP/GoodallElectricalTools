@@ -1,17 +1,18 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
-import type { Fitting, FittingType } from "@/generated/prisma/client";
+import type { Fitting, FittingModel, FittingType } from "@/generated/prisma/client";
 import type { ActionResult } from "@/lib/actions/auth";
 import {
-  createFittingAction,
   deleteFittingAction,
   setFittingActiveAction,
   updateFittingAction,
 } from "@/lib/actions/fittings";
 import { Badge, Button, Card, ErrorText, Input, Label, Select } from "@/components/ui";
 import { CameraIcon, DownloadIcon, PlusIcon, TrashIcon } from "@/components/icons";
+import { formatDate } from "@/lib/format";
 
 const TYPE_LABELS: Record<FittingType, string> = {
   EXIT_SIGN: "Exit sign",
@@ -19,8 +20,15 @@ const TYPE_LABELS: Record<FittingType, string> = {
   COMBINED: "Combined exit/EL",
 };
 
-export function FittingsManager({ siteId, fittings }: { siteId: string; fittings: Fitting[] }) {
-  const [adding, setAdding] = useState(false);
+type FittingWithModel = Fitting & { model: FittingModel | null };
+
+export function FittingsManager({
+  siteId,
+  fittings,
+}: {
+  siteId: string;
+  fittings: FittingWithModel[];
+}) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const active = fittings.filter((f) => f.active);
   const inactive = fittings.filter((f) => !f.active);
@@ -48,23 +56,16 @@ export function FittingsManager({ siteId, fittings }: { siteId: string; fittings
             <DownloadIcon className="h-4 w-4" />
             PDF register
           </a>
-          <Button variant="secondary" onClick={() => setAdding((v) => !v)}>
-            <PlusIcon className="h-4 w-4" />
-            {adding ? "Cancel" : "Add fitting"}
-          </Button>
+          <Link href={`/sites/${siteId}/devices/new`}>
+            <Button variant="secondary">
+              <PlusIcon className="h-4 w-4" />
+              Add fitting
+            </Button>
+          </Link>
         </div>
       </div>
 
-      {adding && (
-        <div className="mb-4">
-          <FittingForm
-            siteId={siteId}
-            onDone={() => setAdding(false)}
-          />
-        </div>
-      )}
-
-      {active.length === 0 && !adding ? (
+      {active.length === 0 ? (
         <Card className="p-8 text-center text-sm text-slate-500">
           No fittings recorded yet. Add each exit sign / emergency light so it can be tracked across
           every test visit.
@@ -75,7 +76,6 @@ export function FittingsManager({ siteId, fittings }: { siteId: string; fittings
             editingId === f.id ? (
               <FittingForm
                 key={f.id}
-                siteId={siteId}
                 fitting={f}
                 onDone={() => setEditingId(null)}
               />
@@ -111,7 +111,7 @@ function FittingCard({
   onEdit,
   decommissioned,
 }: {
-  fitting: Fitting;
+  fitting: FittingWithModel;
   onEdit?: () => void;
   decommissioned?: boolean;
 }) {
@@ -136,6 +136,14 @@ function FittingCard({
           <Badge color="blue">{TYPE_LABELS[fitting.fittingType]}</Badge>
         </div>
         <p className="mt-0.5 text-xs text-slate-500">{fitting.location}</p>
+        {fitting.model && (
+          <p className="mt-0.5 text-xs text-slate-400">
+            {fitting.model.brand} {fitting.model.model}
+          </p>
+        )}
+        {fitting.installedDate && (
+          <p className="mt-0.5 text-xs text-slate-400">Installed {formatDate(fitting.installedDate)}</p>
+        )}
         <div className="mt-2 flex items-center gap-3">
           {!decommissioned && onEdit && (
             <button onClick={onEdit} className="text-xs font-medium text-brand-700 hover:underline">
@@ -174,17 +182,13 @@ function FittingCard({
 }
 
 function FittingForm({
-  siteId,
   fitting,
   onDone,
 }: {
-  siteId: string;
-  fitting?: Fitting;
+  fitting: FittingWithModel;
   onDone: () => void;
 }) {
-  const boundAction = fitting
-    ? updateFittingAction.bind(null, fitting.id)
-    : createFittingAction.bind(null, siteId);
+  const boundAction = updateFittingAction.bind(null, fitting.id);
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(
     boundAction,
     undefined
@@ -206,13 +210,13 @@ function FittingForm({
               id="reference"
               name="reference"
               placeholder="e.g. EL-01"
-              defaultValue={fitting?.reference}
+              defaultValue={fitting.reference}
               required
             />
           </div>
           <div>
             <Label htmlFor="fittingType">Type</Label>
-            <Select id="fittingType" name="fittingType" defaultValue={fitting?.fittingType ?? "EMERGENCY_LIGHT"}>
+            <Select id="fittingType" name="fittingType" defaultValue={fitting.fittingType}>
               <option value="EXIT_SIGN">Exit sign</option>
               <option value="EMERGENCY_LIGHT">Emergency light</option>
               <option value="COMBINED">Combined exit/EL</option>
@@ -225,18 +229,27 @@ function FittingForm({
             id="location"
             name="location"
             placeholder="e.g. Level 1 corridor near stairwell"
-            defaultValue={fitting?.location}
+            defaultValue={fitting.location}
             required
           />
         </div>
         <div>
-          <Label htmlFor="photo">Reference photo {fitting?.photoPath ? "(replace existing)" : ""}</Label>
+          <Label htmlFor="installedDate">Installed date (if known)</Label>
+          <Input
+            id="installedDate"
+            name="installedDate"
+            type="date"
+            defaultValue={fitting.installedDate ? fitting.installedDate.toISOString().slice(0, 10) : ""}
+          />
+        </div>
+        <div>
+          <Label htmlFor="photo">Reference photo {fitting.photoPath ? "(replace existing)" : ""}</Label>
           <Input id="photo" name="photo" type="file" accept="image/*" capture="environment" />
         </div>
         <ErrorText>{state?.error}</ErrorText>
         <div className="flex gap-2">
           <Button type="submit" disabled={pending}>
-            {pending ? "Saving..." : fitting ? "Save fitting" : "Add fitting"}
+            {pending ? "Saving..." : "Save fitting"}
           </Button>
           <Button type="button" variant="ghost" onClick={onDone}>
             Cancel

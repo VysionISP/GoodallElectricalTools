@@ -3,6 +3,7 @@ import type {
   Business,
   Customer,
   Fitting,
+  FittingModel,
   FittingTestResult,
   Job,
   Site,
@@ -38,6 +39,7 @@ const styles = StyleSheet.create({
   },
   repairHeaderRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
   repairTitle: { fontSize: 10, fontFamily: "Helvetica-Bold" },
+  repairModel: { fontSize: 8.5, fontFamily: "Helvetica-Bold", color: colors.ink, marginBottom: 4 },
   repairNotes: { fontSize: 8.5, color: colors.slate, marginBottom: 6 },
   photoRow: { flexDirection: "row", gap: 8 },
   photoBox: { flex: 1 },
@@ -70,7 +72,7 @@ const COLUMN_STYLES: Record<string, object> = {
   comments: styles.colComment,
 };
 
-type FittingWithResult = Fitting & { result?: FittingTestResult };
+type FittingWithResult = Fitting & { result?: FittingTestResult; model?: FittingModel | null };
 
 export function JobReportDocument({
   business,
@@ -191,7 +193,7 @@ export function JobReportDocument({
 
         {needsAttention.length > 0 && (
           <View break>
-            <Text style={sharedStyles.sectionTitle}>Repairs Required</Text>
+            <Text style={sharedStyles.sectionTitle}>Works Required</Text>
             {needsAttention.map((f) => (
               <View style={styles.repairCard} key={f.id} wrap={false}>
                 <View style={styles.repairHeaderRow}>
@@ -202,6 +204,12 @@ export function JobReportDocument({
                     {resultLabel(f.result!.overallResult)}
                   </Text>
                 </View>
+                <Text style={styles.repairModel}>
+                  {f.model
+                    ? `Replacement unit: ${f.model.brand} ${f.model.model}`
+                    : "Replacement unit: model not recorded for this fitting"}
+                  {f.installedDate ? `  ·  Installed ${formatDate(f.installedDate)}` : ""}
+                </Text>
                 {f.result?.repairNotes && (
                   <Text style={styles.repairNotes}>{f.result.repairNotes}</Text>
                 )}

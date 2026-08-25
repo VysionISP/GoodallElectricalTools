@@ -83,11 +83,12 @@ model Business {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  users     User[]
-  customers Customer[]
-  sites     Site[]
-  jobs      Job[]
-  templates ReportTemplate[]
+  users         User[]
+  customers     Customer[]
+  sites         Site[]
+  jobs          Job[]
+  templates     ReportTemplate[]
+  fittingModels FittingModel[]
 }
 
 model User {
@@ -138,6 +139,13 @@ model Site {
   notes      String?
   createdAt  DateTime @default(now())
 
+  // Asked when the site is created: does it already have its own fitting
+  // labeling convention (leave reference blank for the tech to fill in), or
+  // should new fittings get an auto-suggested reference (see
+  // src/lib/naming.ts)? Null = not yet asked (sites created before this
+  // existed) — treated the same as an existing convention.
+  autoNaming Boolean?
+
   fittings Fitting[]
   rcdUnits RcdUnit[]
   jobs     Job[]
@@ -160,9 +168,37 @@ model Fitting {
   active      Boolean     @default(true) // false = decommissioned/removed
   createdAt   DateTime    @default(now())
 
+  modelId       String? // catalog entry (brand/model) this physical device is, if selected
+  model         FittingModel? @relation(fields: [modelId], references: [id], onDelete: SetNull)
+  installedDate DateTime? // when the device was installed, if known
+
   testResults FittingTestResult[]
 
   @@index([siteId])
+  @@index([modelId])
+}
+
+// A brand/model catalog entry for exit signs & emergency lights, used to
+// pick the exact device when adding a fitting (with a reference photo so a
+// technician can visually confirm it, without needing to know model numbers
+// by heart). businessId null = shared across every business (a starter set
+// of common AS/NZS brands); set = a business's own custom addition, visible
+// only to them.
+model FittingModel {
+  id         String    @id @default(cuid())
+  businessId String?
+  business   Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  brand       String
+  model       String
+  fittingType FittingType
+  photoPath   String? // reference photo of the physical device, shown in the picker
+  createdAt   DateTime @default(now())
+
+  fittings Fitting[]
+
+  @@index([businessId])
+  @@index([fittingType])
 }
 
 // A persistent record of a single RCD (safety switch) at a site, usually at

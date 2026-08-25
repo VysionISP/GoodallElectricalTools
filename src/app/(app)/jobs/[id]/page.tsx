@@ -25,7 +25,7 @@ export default async function JobDetailPage({
       site: {
         include: {
           customer: true,
-          fittings: { where: { active: true }, orderBy: { reference: "asc" } },
+          fittings: { where: { active: true }, orderBy: { reference: "asc" }, include: { model: true } },
           rcdUnits: { where: { active: true }, orderBy: { reference: "asc" } },
         },
       },

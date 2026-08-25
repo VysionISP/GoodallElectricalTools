@@ -20,7 +20,7 @@ export default async function SiteDetailPage({
     where: { id },
     include: {
       customer: true,
-      fittings: { orderBy: { reference: "asc" } },
+      fittings: { orderBy: { reference: "asc" }, include: { model: true } },
       rcdUnits: { orderBy: { reference: "asc" } },
       jobs: { orderBy: { createdAt: "desc" }, take: 8, include: { technician: true } },
     },

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { readFile, stat } from "fs/promises";
 import path from "path";
 import { auth } from "@/auth";
-import { UPLOAD_ROOT } from "@/lib/upload";
+import { UPLOAD_ROOT, SHARED_UPLOAD_SCOPE } from "@/lib/upload";
 
 const CONTENT_TYPES: Record<string, string> = {
   jpg: "image/jpeg",
@@ -25,12 +25,17 @@ export async function GET(
   const { path: segments } = await params;
   const [businessId, category, filename] = segments;
 
+  // Shared fitting-model catalog photos are visible to every logged-in
+  // user, not just the business that uploaded them — everything else stays
+  // scoped strictly to the requester's own business.
+  const isShared = businessId === SHARED_UPLOAD_SCOPE;
+
   if (
     !businessId ||
     !category ||
     !filename ||
     segments.length !== 3 ||
-    businessId !== session.user.businessId
+    (!isShared && businessId !== session.user.businessId)
   ) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

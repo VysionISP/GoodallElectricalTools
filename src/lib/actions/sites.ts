@@ -24,6 +24,11 @@ export async function createSiteAction(
 
   const address = String(formData.get("address") ?? "").trim() || null;
   const notes = String(formData.get("notes") ?? "").trim() || null;
+  const namingConvention = String(formData.get("namingConvention") ?? "");
+  if (namingConvention !== "existing" && namingConvention !== "auto") {
+    return { error: "Let us know whether this site has an existing fitting labeling convention." };
+  }
+  const autoNaming = namingConvention === "auto";
 
   let mapPdfPath: string | undefined;
   const map = formData.get("mapPdf");
@@ -43,6 +48,7 @@ export async function createSiteAction(
       address,
       notes,
       mapPdfPath,
+      autoNaming,
     },
   });
 

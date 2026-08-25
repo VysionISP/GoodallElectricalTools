@@ -53,6 +53,36 @@ export function SiteForm({
           <Label htmlFor="address">Site address</Label>
           <Textarea id="address" name="address" rows={2} defaultValue={site?.address ?? ""} />
         </div>
+        {customers && (
+          <div>
+            <Label>Fitting labeling</Label>
+            <p className="mb-2 text-xs text-slate-500">
+              Does this site already have its own naming/labeling convention for its exit signs and
+              emergency lights?
+            </p>
+            <div className="space-y-2">
+              <label className="flex items-start gap-2 rounded-lg border border-slate-200 p-3 text-sm has-[:checked]:border-brand-400 has-[:checked]:bg-brand-50">
+                <input type="radio" name="namingConvention" value="existing" className="mt-0.5" required />
+                <span>
+                  <span className="font-medium text-slate-900">Yes, it has its own convention</span>
+                  <span className="block text-xs text-slate-500">
+                    You&apos;ll type each fitting&apos;s reference yourself as you add devices.
+                  </span>
+                </span>
+              </label>
+              <label className="flex items-start gap-2 rounded-lg border border-slate-200 p-3 text-sm has-[:checked]:border-brand-400 has-[:checked]:bg-brand-50">
+                <input type="radio" name="namingConvention" value="auto" className="mt-0.5" required />
+                <span>
+                  <span className="font-medium text-slate-900">No, suggest names for me</span>
+                  <span className="block text-xs text-slate-500">
+                    Each new fitting gets a suggested reference (e.g. EL-01, EX-01) that you can still
+                    edit.
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+        )}
         <div>
           <Label htmlFor="mapPdf">
             Site / floor plan {site?.mapPdfPath ? "(replace existing)" : ""}

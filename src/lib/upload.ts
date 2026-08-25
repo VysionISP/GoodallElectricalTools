@@ -22,15 +22,21 @@ function extensionOf(filename: string) {
   return ext.replace(/[^a-z0-9]/g, "");
 }
 
+// Reserved "businessId" folder for shared/global fitting-model catalog
+// photos — visible to every business, not just whoever uploaded it. See
+// the businessId === SHARED_UPLOAD_SCOPE check in the uploads API route.
+export const SHARED_UPLOAD_SCOPE = "shared";
+
 /** Saves an uploaded File to disk under uploads/{businessId}/{category}/
  * and returns the URL path (served by the /api/uploads route) to store in the database.
  * Images are normalized to JPEG (and auto-rotated per EXIF orientation) so
  * every format the browser can hand us is guaranteed to render both on the
- * web and inside generated PDF reports. */
+ * web and inside generated PDF reports. Pass SHARED_UPLOAD_SCOPE as
+ * businessId for a shared catalog entry's photo instead of a real business id. */
 export async function saveUploadedFile(
   file: File,
   businessId: string,
-  category: "logos" | "fittings" | "job-photos" | "site-maps",
+  category: "logos" | "fittings" | "job-photos" | "site-maps" | "fitting-models",
   kind: "image" | "pdf" = "image"
 ): Promise<string> {
   const sourceExt = extensionOf(file.name);

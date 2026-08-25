@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Fitting, RcdUnit } from "@/generated/prisma/client";
+import type { Fitting, FittingModel, RcdUnit } from "@/generated/prisma/client";
 import { FittingsManager } from "./fittings-manager";
 import { RcdUnitsManager } from "./rcd-units-manager";
 
@@ -11,7 +11,7 @@ export function RegisterTabs({
   rcdUnits,
 }: {
   siteId: string;
-  fittings: Fitting[];
+  fittings: (Fitting & { model: FittingModel | null })[];
   rcdUnits: RcdUnit[];
 }) {
   const [tab, setTab] = useState<"EXIT_EMERGENCY_LIGHTING" | "RCD_TESTING">(

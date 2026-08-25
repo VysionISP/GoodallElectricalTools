@@ -1,4 +1,4 @@
-import type { DischargePhase, Fitting, FittingTestResult } from "@/generated/prisma/client";
+import type { DischargePhase, Fitting, FittingModel, FittingTestResult } from "@/generated/prisma/client";
 import { EnergisedWalkthrough } from "./energised-walkthrough";
 import { DischargeTimer } from "./discharge-timer";
 import { DischargeReview } from "./discharge-review";
@@ -17,7 +17,7 @@ export function DischargeTestFlow({
   phase: DischargePhase;
   runningSince: Date | null;
   elapsedSeconds: number;
-  fittings: Fitting[];
+  fittings: (Fitting & { model: FittingModel | null })[];
   results: FittingTestResult[];
 }) {
   if (phase === "ENERGISED_CHECK") {
