@@ -44,6 +44,13 @@
   }
 }
 
+html {
+  /* Anchor links (e.g. the landing nav's #pricing/#faq) glide instead of
+     jumping; the padding keeps sections clear of the sticky header. */
+  scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
