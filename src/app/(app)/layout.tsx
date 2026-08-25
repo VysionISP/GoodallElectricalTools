@@ -50,12 +50,12 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
               className="h-8 w-8 rounded-lg object-contain bg-white"
             />
           ) : (
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-brand-950 font-bold text-sm">
-              {(business?.name ?? "FC").slice(0, 1).toUpperCase()}
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-white font-bold text-sm">
+              {(business?.name ?? "VR").slice(0, 1).toUpperCase()}
             </div>
           )}
           <p className="truncate text-base font-semibold text-white">
-            {business?.name ?? "Field Compliance"}
+            {business?.name ?? "VoltRecord"}
           </p>
         </div>
 
@@ -107,11 +107,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
               />
             ) : (
               <div className="h-7 w-7 rounded-md bg-brand-700 text-white flex items-center justify-center font-bold text-xs">
-                {(business?.name ?? "FC").slice(0, 2).toUpperCase()}
+                {(business?.name ?? "VR").slice(0, 2).toUpperCase()}
               </div>
             )}
             <span className="text-sm font-semibold text-slate-900 truncate max-w-[50vw]">
-              {business?.name ?? "Field Compliance"}
+              {business?.name ?? "VoltRecord"}
             </span>
           </div>
           <form action={logoutAction}>

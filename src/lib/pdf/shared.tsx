@@ -10,12 +10,12 @@ export const colors = {
   slate: "#475569",
   faint: "#94a3b8",
   border: "#e2e8f0",
-  green: "#166534",
-  greenBg: "#dcfce7",
-  red: "#b91c1c",
-  redBg: "#fee2e2",
-  amber: "#92400e",
-  amberBg: "#fef3c7",
+  green: "#157a3e",
+  greenBg: "#e4f5eb",
+  red: "#d93b47",
+  redBg: "#fbe7e9",
+  amber: "#b26e0a",
+  amberBg: "#fdf0d9",
 };
 
 export const TYPE_LABELS: Record<string, string> = {

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { requirePlatformAdmin } from "@/lib/session";
 import { SidebarLinks, BottomNavLinks, type NavItem } from "@/components/nav-links";
 import { logoutAction } from "@/lib/actions/auth";
@@ -8,7 +9,6 @@ import {
   ClipboardIcon,
   HomeIcon,
   LogoutIcon,
-  ShieldIcon,
 } from "@/components/icons";
 
 // The platform console is deliberately its own surface, separate from the
@@ -26,12 +26,16 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     <div className="flex min-h-screen w-full bg-slate-100">
       <aside className="hidden md:flex md:w-64 md:flex-col md:bg-slate-950">
         <div className="flex items-center gap-2.5 px-5 py-6">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-slate-950">
-            <ShieldIcon className="h-5 w-5" />
-          </div>
+          <Image
+            src="/brand/voltrecord-icon.png"
+            alt=""
+            width={32}
+            height={32}
+            className="h-8 w-8 rounded-lg bg-white object-contain p-1"
+          />
           <div>
             <p className="text-base font-semibold text-white">Platform console</p>
-            <p className="text-[11px] text-slate-400">Field Compliance</p>
+            <p className="text-[11px] text-slate-400">VoltRecord</p>
           </div>
         </div>
 
@@ -76,9 +80,13 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <div className="flex min-h-screen w-full flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-slate-200 bg-slate-950 px-4 py-3 md:hidden">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-brand-500 text-slate-950">
-              <ShieldIcon className="h-4 w-4" />
-            </div>
+            <Image
+              src="/brand/voltrecord-icon.png"
+              alt=""
+              width={28}
+              height={28}
+              className="h-7 w-7 rounded-md bg-white object-contain p-0.5"
+            />
             <span className="text-sm font-semibold text-white">Platform console</span>
           </div>
           <div className="flex items-center gap-1">

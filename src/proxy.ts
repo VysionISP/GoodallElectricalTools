@@ -31,5 +31,8 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
+  // brand/ and icon.png are public static assets (logo lockups, favicon) —
+  // without excluding them the auth redirect breaks the logo images on the
+  // public pages themselves.
+  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico|icon.png|brand/).*)"],
 };

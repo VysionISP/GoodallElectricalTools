@@ -171,7 +171,7 @@ async function seedDemoData(businessId: string) {
   const fittingSpecs = [
     { reference: "EX-01", type: "EXIT_SIGN" as const, location: "Front entry, above door", color: "#047857" },
     { reference: "EX-02", type: "EXIT_SIGN" as const, location: "Rear fire exit", color: "#0f766e" },
-    { reference: "EL-01", type: "EMERGENCY_LIGHT" as const, location: "Level 1 corridor", color: "#1d4ed8" },
+    { reference: "EL-01", type: "EMERGENCY_LIGHT" as const, location: "Level 1 corridor", color: "#0B2D5C" },
     { reference: "EL-02", type: "EMERGENCY_LIGHT" as const, location: "Stairwell, mid landing", color: "#7c3aed" },
     { reference: "CB-01", type: "COMBINED" as const, location: "Warehouse roller door", color: "#b45309" },
   ];

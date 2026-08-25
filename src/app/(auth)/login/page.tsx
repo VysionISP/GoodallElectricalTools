@@ -24,7 +24,7 @@ export default function LoginPage() {
           autoFocus
           autoComplete="email"
           placeholder="Email address"
-          className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric"
         />
         <input
           id="password"
@@ -33,13 +33,13 @@ export default function LoginPage() {
           required
           autoComplete="current-password"
           placeholder="Password"
-          className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric"
         />
         {state?.error && <p className="text-sm font-medium text-red-300">{state.error}</p>}
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-xl bg-brand-500 px-4 py-3.5 text-base font-semibold text-brand-950 hover:bg-brand-400 disabled:opacity-60"
+          className="w-full rounded-xl bg-electric px-4 py-3.5 text-base font-semibold text-brand-950 hover:bg-electric-400 disabled:opacity-60"
         >
           {pending ? "Signing in..." : "Sign in"}
         </button>

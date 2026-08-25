@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Installs and sets up Field Compliance for local use on macOS.
+# Installs and sets up VoltRecord for local use on macOS.
 # Run this from inside the cloned repo: ./install.sh
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-echo "== Field Compliance installer =="
+echo "== VoltRecord installer =="
 
 # 1. Homebrew
 if ! command -v brew >/dev/null 2>&1; then

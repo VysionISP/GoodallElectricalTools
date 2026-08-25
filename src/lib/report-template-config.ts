@@ -1,9 +1,9 @@
 import type { ToolType, ReportTemplate } from "@/generated/prisma/client";
 
 // Matches the app's brand-700 token in globals.css.
-export const DEFAULT_ACCENT_COLOR = "#047857";
+export const DEFAULT_ACCENT_COLOR = "#0B2D5C";
 
-export const ACCENT_SWATCHES = ["#047857", "#1d4ed8", "#7c3aed", "#b91c1c", "#0f172a"];
+export const ACCENT_SWATCHES = ["#0B2D5C", "#169CE8", "#20B25B", "#D93B47", "#0f172a"];
 
 export const COLUMN_DEFS: Record<ToolType, { key: string; label: string }[]> = {
   EXIT_EMERGENCY_LIGHTING: [

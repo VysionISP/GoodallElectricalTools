@@ -1,4 +1,4 @@
-# Field Compliance
+# VoltRecord
 
 A self-hosted, mobile-and-desktop-responsive field testing platform for electrical
 businesses. The first tool covers **Exit & Emergency Lighting testing** to

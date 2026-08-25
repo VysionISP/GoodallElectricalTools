@@ -356,7 +356,7 @@ model ReportTemplate {
   isDefault Boolean  @default(false)
 
   // Layout/style
-  accentColor   String  @default("#1d4ed8")
+  accentColor   String  @default("#0B2D5C")
   showStatCards Boolean @default(true)
   showPhotos    Boolean @default(true)
   // Ordered list of column keys to show in the results table — the set of

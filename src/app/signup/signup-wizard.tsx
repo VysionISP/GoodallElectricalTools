@@ -2,6 +2,7 @@
 
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { signupAction } from "@/lib/actions/auth";
 import { saveSignupLeadAction } from "@/lib/actions/signup-leads";
 
@@ -45,11 +46,15 @@ export function SignupWizard() {
   return (
     <div className="flex min-h-screen flex-col bg-brand-950 px-4">
       <header className="mx-auto flex w-full max-w-4xl items-center justify-between py-6">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-brand-950 text-sm font-bold">
-            FC
-          </div>
-          <span className="text-sm font-semibold text-white">Field Compliance</span>
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/brand/voltrecord-lockup-dark.png"
+            alt="VoltRecord"
+            width={150}
+            height={34}
+            priority
+            className="h-8 w-auto"
+          />
         </Link>
         <Link href="/login" className="text-sm font-medium text-brand-100/80 hover:text-white">
           Sign in
@@ -80,7 +85,7 @@ export function SignupWizard() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email address"
-                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric"
               />
               <BigButton type="submit">Next</BigButton>
             </form>
@@ -109,14 +114,14 @@ export function SignupWizard() {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="First name"
-                  className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                  className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric"
                 />
                 <input
                   required
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="Last name"
-                  className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                  className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric"
                 />
               </div>
               <input
@@ -131,7 +136,7 @@ export function SignupWizard() {
                 }}
                 placeholder="Mobile number"
                 autoComplete="tel"
-                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric"
               />
               {mobileError && <p className="text-sm font-medium text-red-300">{mobileError}</p>}
               <BigButton type="submit">Next</BigButton>
@@ -156,13 +161,13 @@ export function SignupWizard() {
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
                 placeholder="Business name"
-                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric"
               />
               <input
                 value={abn}
                 onChange={(e) => setAbn(e.target.value)}
                 placeholder="ABN (optional)"
-                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric"
               />
               <BigButton type="submit">Next</BigButton>
               <BackLink onClick={() => setStep(1)} />
@@ -184,7 +189,7 @@ export function SignupWizard() {
                 minLength={8}
                 autoComplete="new-password"
                 placeholder="Password (8+ characters)"
-                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric"
               />
               <input
                 name="confirmPassword"
@@ -193,7 +198,7 @@ export function SignupWizard() {
                 minLength={8}
                 autoComplete="new-password"
                 placeholder="Confirm password"
-                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric"
               />
               {error && <p className="text-sm font-medium text-red-300">{error}</p>}
               <BigButton type="submit" disabled={pending}>
@@ -242,7 +247,7 @@ function StepDots({ step }: { step: number }) {
         <span
           key={i}
           className={`h-1.5 rounded-full transition-all ${
-            i === step ? "w-8 bg-brand-400" : i < step ? "w-4 bg-brand-600" : "w-4 bg-white/15"
+            i === step ? "w-8 bg-electric" : i < step ? "w-4 bg-verified" : "w-4 bg-white/15"
           }`}
         />
       ))}
@@ -263,7 +268,7 @@ function BigButton({
     <button
       type={type}
       disabled={disabled}
-      className="w-full rounded-xl bg-brand-500 px-4 py-3.5 text-base font-semibold text-brand-950 hover:bg-brand-400 disabled:opacity-60"
+      className="w-full rounded-xl bg-electric px-4 py-3.5 text-base font-semibold text-brand-950 hover:bg-electric-400 disabled:opacity-60"
     >
       {children}
     </button>

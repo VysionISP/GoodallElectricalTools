@@ -8,20 +8,33 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 
-  /* Brand palette: deep forest green sidebar/chrome, emerald accents */
-  --color-brand-50: #ecfdf5;
-  --color-brand-100: #d1fae5;
-  --color-brand-200: #a7f3d0;
-  --color-brand-300: #6ee7b7;
-  --color-brand-500: #10b981;
-  --color-brand-600: #059669;
-  --color-brand-700: #047857;
-  --color-brand-800: #1b4a3a;
-  --color-brand-900: #123a2d;
-  --color-brand-950: #0b2a20;
+  /* VoltRecord brand palette (Brand Identity System v1.0).
+     Brand scale = Record Navy (#0B2D5C at 700) with Cloud (#F4F7FA) as 50.
+     Green is reserved for verified/successful results, red for failures and
+     destructive actions, amber for attention — never decorative. */
+  --color-brand-50: #f4f7fa; /* Cloud */
+  --color-brand-100: #e2eaf4;
+  --color-brand-200: #c3d2e8;
+  --color-brand-300: #96b0d4;
+  --color-brand-400: #5f82b4;
+  --color-brand-500: #2f5e9e;
+  --color-brand-600: #17427c;
+  --color-brand-700: #0b2d5c; /* Record Navy */
+  --color-brand-800: #09254b;
+  --color-brand-900: #071c3a;
+  --color-brand-950: #051329;
+
+  /* Functional colours */
+  --color-verified: #20b25b; /* Verified Green — pass / verified only */
+  --color-verified-600: #1a984d;
+  --color-electric: #169ce8; /* Electric Blue — interactive accent */
+  --color-electric-400: #45b1ee;
+  --color-electric-600: #1284c7;
+  --color-warning: #f4a61d; /* Warning Amber */
+  --color-fault: #d93b47; /* Fault Red */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -34,5 +47,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Inter, Arial, Helvetica, sans-serif;
 }

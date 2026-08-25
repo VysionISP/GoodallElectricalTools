@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { CheckIcon, XIcon, CameraIcon, DownloadIcon } from "@/components/icons";
 
@@ -30,11 +31,15 @@ function TopNav() {
   return (
     <header className="sticky top-0 z-20 border-b border-white/5 bg-brand-950/90 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 md:px-8">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-sm font-bold text-brand-950">
-            FC
-          </div>
-          <span className="text-sm font-semibold tracking-tight">Field Compliance</span>
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/brand/voltrecord-lockup-dark.png"
+            alt="VoltRecord"
+            width={150}
+            height={34}
+            priority
+            className="h-8 w-auto"
+          />
         </Link>
         <nav className="hidden items-center gap-7 text-sm text-brand-100/70 md:flex">
           <a href="#features" className="hover:text-white">
@@ -59,7 +64,7 @@ function TopNav() {
           </Link>
           <Link
             href="/signup"
-            className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-brand-950 hover:bg-brand-400"
+            className="rounded-lg bg-electric px-4 py-2 text-sm font-semibold text-brand-950 hover:bg-electric-400"
           >
             Get started
           </Link>
@@ -80,7 +85,7 @@ function Hero() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(60% 50% at 50% 0%, rgba(16,185,129,0.16) 0%, rgba(16,185,129,0) 70%)",
+            "radial-gradient(60% 50% at 50% 0%, rgba(22,156,232,0.18) 0%, rgba(22,156,232,0) 70%)",
         }}
       />
       <div
@@ -94,24 +99,24 @@ function Hero() {
       />
 
       <div className="relative mx-auto w-full max-w-6xl px-4 pb-10 pt-16 text-center md:px-8 md:pt-24">
-        <p className="mx-auto mb-5 inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-4 py-1.5 text-xs font-medium text-brand-300">
-          <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
+        <p className="mx-auto mb-5 inline-flex items-center gap-2 rounded-full border border-electric/30 bg-electric/10 px-4 py-1.5 text-xs font-medium text-electric-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-verified" />
           Exit &amp; emergency lighting · RCD testing · AS/NZS 2293 workflow
         </p>
         <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-[1.1] tracking-tight sm:text-6xl">
           The testing paperwork,
           <br />
-          <span className="text-brand-400">done before you leave site.</span>
+          <span className="text-electric">done before you leave site.</span>
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-brand-100/70">
-          Field Compliance runs your emergency lighting and RCD test visits from your phone — a
+          VoltRecord runs your emergency lighting and RCD test visits from your phone — a
           guided 90-minute discharge test, a photo register of every fitting, and a branded PDF
           report generated the moment you confirm the last result.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/signup"
-            className="w-full rounded-xl bg-brand-500 px-8 py-3.5 text-base font-semibold text-brand-950 shadow-lg shadow-brand-500/25 hover:bg-brand-400 sm:w-auto"
+            className="w-full rounded-xl bg-electric px-8 py-3.5 text-base font-semibold text-brand-950 shadow-lg shadow-electric/25 hover:bg-electric-400 sm:w-auto"
           >
             Get started — it&apos;s quick
           </Link>
@@ -131,7 +136,7 @@ function Hero() {
       <div className="relative mx-auto w-full max-w-4xl px-4 pb-16 md:px-8">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-8 bottom-8 top-16 rounded-[40px] bg-brand-500/20 blur-3xl"
+          className="pointer-events-none absolute inset-x-8 bottom-8 top-16 rounded-[40px] bg-electric/20 blur-3xl"
         />
         <MockWindow title="Riverside Office — 6-Monthly Discharge Test">
           <div className="flex items-start justify-between gap-3 border-b border-slate-100 p-4">
@@ -254,7 +259,7 @@ function FactStrip() {
       <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4 md:px-8">
         {facts.map(([big, small]) => (
           <div key={small} className="text-center">
-            <p className="text-2xl font-bold text-brand-400">{big}</p>
+            <p className="text-2xl font-bold text-verified">{big}</p>
             <p className="mt-1 text-xs leading-relaxed text-brand-100/60">{small}</p>
           </div>
         ))}
@@ -557,11 +562,11 @@ function HowItWorks() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(50% 40% at 50% 100%, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0) 70%)",
+            "radial-gradient(50% 40% at 50% 100%, rgba(22,156,232,0.14) 0%, rgba(22,156,232,0) 70%)",
         }}
       />
       <div className="relative mx-auto w-full max-w-6xl px-4 py-20 md:px-8">
-        <p className="text-center text-xs font-semibold uppercase tracking-widest text-brand-400">
+        <p className="text-center text-xs font-semibold uppercase tracking-widest text-electric">
           How it works
         </p>
         <h2 className="mx-auto mt-2 max-w-xl text-center text-3xl font-bold tracking-tight">
@@ -573,15 +578,15 @@ function HowItWorks() {
               {i < steps.length - 1 && (
                 <div
                   aria-hidden
-                  className="absolute left-10 right-0 top-4 hidden h-px bg-gradient-to-r from-brand-500/50 to-transparent md:block"
+                  className="absolute left-10 right-0 top-4 hidden h-px bg-gradient-to-r from-electric/50 to-transparent md:block"
                 />
               )}
-              <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-brand-500 text-sm font-bold text-brand-950">
+              <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-electric text-sm font-bold text-brand-950">
                 {i + 1}
               </div>
               <h3 className="mt-4 text-sm font-semibold">{title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-brand-100/60">{body}</p>
-              <p className="mt-3 inline-block rounded-full border border-white/10 px-2.5 py-1 text-[11px] font-medium text-brand-300">
+              <p className="mt-3 inline-block rounded-full border border-white/10 px-2.5 py-1 text-[11px] font-medium text-electric-400">
                 {tag}
               </p>
             </div>
@@ -676,7 +681,7 @@ function PricingCard({
   return (
     <div
       className={`relative flex flex-col rounded-2xl border bg-white p-6 ${
-        highlighted ? "border-brand-500 shadow-lg shadow-brand-500/10" : "border-slate-200"
+        highlighted ? "border-electric shadow-lg shadow-electric/10" : "border-slate-200"
       }`}
     >
       {highlighted && (
@@ -753,7 +758,7 @@ function Faq() {
             <details key={q} className="group py-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-white [&::-webkit-details-marker]:hidden">
                 {q}
-                <span className="text-brand-400 transition-transform group-open:rotate-45">+</span>
+                <span className="text-electric transition-transform group-open:rotate-45">+</span>
               </summary>
               <p className="mt-3 text-sm leading-relaxed text-brand-100/70">{a}</p>
             </details>
@@ -769,13 +774,13 @@ function Faq() {
 function FinalCta() {
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-20 md:px-8">
-      <div className="relative overflow-hidden rounded-3xl border border-brand-500/20 bg-gradient-to-br from-brand-900 to-brand-950 px-6 py-14 text-center md:px-12">
+      <div className="relative overflow-hidden rounded-3xl border border-electric/20 bg-gradient-to-br from-brand-900 to-brand-950 px-6 py-14 text-center md:px-12">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(50% 60% at 50% 0%, rgba(16,185,129,0.18) 0%, rgba(16,185,129,0) 70%)",
+              "radial-gradient(50% 60% at 50% 0%, rgba(22,156,232,0.20) 0%, rgba(22,156,232,0) 70%)",
           }}
         />
         <h2 className="relative text-3xl font-bold tracking-tight">
@@ -787,7 +792,7 @@ function FinalCta() {
         </p>
         <Link
           href="/signup"
-          className="relative mt-8 inline-block rounded-xl bg-brand-500 px-8 py-3.5 text-base font-semibold text-brand-950 shadow-lg shadow-brand-500/25 hover:bg-brand-400"
+          className="relative mt-8 inline-block rounded-xl bg-electric px-8 py-3.5 text-base font-semibold text-brand-950 shadow-lg shadow-electric/25 hover:bg-electric-400"
         >
           Get started
         </Link>
@@ -801,10 +806,8 @@ function Footer() {
     <footer className="border-t border-white/5">
       <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-xs text-brand-100/50 sm:flex-row md:px-8">
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded bg-brand-500 text-[10px] font-bold text-brand-950">
-            FC
-          </div>
-          Field Compliance — electrical testing &amp; compliance reporting.
+          <Image src="/brand/voltrecord-icon.png" alt="" width={20} height={20} className="h-5 w-5" />
+          VoltRecord — electrical compliance, recorded.
         </div>
         <div className="flex gap-5">
           <a href="#features" className="hover:text-white">
