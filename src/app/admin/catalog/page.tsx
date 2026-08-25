@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { requirePlatformAdmin } from "@/lib/session";
+import { PageHeader } from "@/components/ui";
 import { CatalogManager } from "./catalog-manager";
 
 export default async function AdminCatalogPage() {
@@ -14,5 +15,13 @@ export default async function AdminCatalogPage() {
     include: { _count: { select: { fittings: true } } },
   });
 
-  return <CatalogManager catalog={catalog} />;
+  return (
+    <div>
+      <PageHeader
+        title="Device catalogue"
+        description="The shared product list every business's technicians pick from."
+      />
+      <CatalogManager catalog={catalog} />
+    </div>
+  );
 }

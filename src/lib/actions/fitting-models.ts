@@ -44,7 +44,7 @@ export async function createFittingModelAction(formData: FormData): Promise<Crea
   // The wizard lives under /sites/[id]/devices/new and the admin manager
   // under /admin/catalog — refresh both trees.
   revalidatePath("/sites", "layout");
-  revalidatePath("/admin/catalog");
+  revalidatePath("/admin", "layout");
   return { id: created.id };
 }
 
@@ -73,7 +73,7 @@ export async function setFittingModelPhotoAction(
 
   await prisma.fittingModel.update({ where: { id: modelId }, data: { photoPath } });
   revalidatePath("/sites", "layout");
-  revalidatePath("/admin/catalog");
+  revalidatePath("/admin", "layout");
 }
 
 /** Removes a catalogue entry. Entries still linked to recorded fittings are
@@ -96,5 +96,5 @@ export async function deleteFittingModelAction(modelId: string): Promise<ActionR
   await prisma.fittingModel.delete({ where: { id: modelId } });
 
   revalidatePath("/sites", "layout");
-  revalidatePath("/admin/catalog");
+  revalidatePath("/admin", "layout");
 }

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { requirePlatformAdmin } from "@/lib/session";
+import { PageHeader } from "@/components/ui";
 import { BusinessesTable } from "./businesses-table";
 
 export default async function AdminBusinessesPage() {
@@ -12,5 +13,13 @@ export default async function AdminBusinessesPage() {
     },
   });
 
-  return <BusinessesTable businesses={businesses} ownBusinessId={session.user.businessId} />;
+  return (
+    <div>
+      <PageHeader
+        title="Businesses"
+        description="Every business on this platform. Suspend to block access, or delete to remove one entirely."
+      />
+      <BusinessesTable businesses={businesses} ownBusinessId={session.user.businessId} />
+    </div>
+  );
 }

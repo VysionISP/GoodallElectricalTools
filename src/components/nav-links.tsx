@@ -11,7 +11,9 @@ export type NavItem = {
 };
 
 function isActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
+  // Section-root links ("/", the console's "/admin") match exactly, so they
+  // don't stay highlighted while a sibling nav item's deeper page is open.
+  if (href === "/" || href === "/admin") return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -40,14 +42,21 @@ export function SidebarLinks({ items }: { items: NavItem[] }) {
   );
 }
 
+const GRID_COLS: Record<number, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-3",
+  4: "grid-cols-4",
+  5: "grid-cols-5",
+  6: "grid-cols-6",
+};
+
 export function BottomNavLinks({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   const shown = items.slice(0, 6);
   return (
     <nav
-      className={`grid border-t border-slate-200 bg-white ${
-        shown.length === 6 ? "grid-cols-6" : "grid-cols-5"
-      }`}
+      className={`grid border-t border-slate-200 bg-white ${GRID_COLS[shown.length] ?? "grid-cols-5"}`}
     >
       {shown.map((item) => {
         const active = isActive(pathname, item.href);

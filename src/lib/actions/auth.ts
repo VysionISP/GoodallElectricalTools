@@ -70,11 +70,20 @@ export async function loginAction(
     return { error: "Email and password are required." };
   }
 
+  // Platform admins land on the platform console; everyone else on their
+  // business dashboard. Looked up before signIn only to pick the redirect —
+  // authentication itself still happens inside signIn.
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { isPlatformAdmin: true },
+  });
+  const redirectTo = user?.isPlatformAdmin ? "/admin" : "/";
+
   try {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/",
+      redirectTo,
     });
   } catch (err) {
     if (err && typeof err === "object" && "type" in err) {

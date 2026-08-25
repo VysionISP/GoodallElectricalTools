@@ -23,7 +23,7 @@ export async function setBusinessSuspendedAction(
   if (!business) return { error: "Business not found." };
 
   await prisma.business.update({ where: { id: businessId }, data: { suspended } });
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 /** Permanently deletes a tenant business and everything under it —
@@ -48,5 +48,5 @@ export async function deleteBusinessAction(businessId: string): Promise<ActionRe
     await rm(dir, { recursive: true, force: true }).catch(() => {});
   }
 
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }

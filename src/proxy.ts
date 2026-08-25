@@ -19,7 +19,8 @@ export default auth((req) => {
   }
 
   if (isAuthed && (pathname === "/login" || pathname === "/signup")) {
-    return NextResponse.redirect(new URL("/", req.nextUrl.origin));
+    const home = req.auth?.user?.isPlatformAdmin ? "/admin" : "/";
+    return NextResponse.redirect(new URL(home, req.nextUrl.origin));
   }
 
   return NextResponse.next();
