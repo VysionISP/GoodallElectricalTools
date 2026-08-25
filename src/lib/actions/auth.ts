@@ -18,6 +18,7 @@ export async function signupAction(
     .trim()
     .toLowerCase();
   const mobile = String(formData.get("mobile") ?? "").trim() || null;
+  const abn = String(formData.get("abn") ?? "").trim() || null;
   const password = String(formData.get("password") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
@@ -45,6 +46,7 @@ export async function signupAction(
   await prisma.business.create({
     data: {
       name: businessName,
+      abn,
       // Their mobile seeds the business phone; onboarding lets them change it.
       phone: mobile,
       users: {

@@ -6,9 +6,9 @@ import { signupAction } from "@/lib/actions/auth";
 import { saveSignupLeadAction } from "@/lib/actions/signup-leads";
 
 // Full-bleed, one-question-at-a-time signup (email -> name & mobile ->
-// business + password). Each completed step also saves what's known so far
-// as a signup lead, so an abandoned signup still leaves the platform owner
-// a contact to follow up; finishing signup removes the lead again.
+// business name & ABN -> password). Each completed step also saves what's
+// known so far as a signup lead, so an abandoned signup still leaves the
+// platform owner a contact to follow up; finishing signup removes the lead.
 
 export function SignupWizard() {
   const [step, setStep] = useState(0);
@@ -16,6 +16,8 @@ export function SignupWizard() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [mobile, setMobile] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [abn, setAbn] = useState("");
   const [error, setError] = useState<string | undefined>();
   const [pending, startTransition] = useTransition();
 
@@ -26,6 +28,8 @@ export function SignupWizard() {
     formData.set("firstName", firstName);
     formData.set("lastName", lastName);
     formData.set("mobile", mobile);
+    formData.set("businessName", businessName);
+    formData.set("abn", abn);
     if (formData.get("password") !== formData.get("confirmPassword")) {
       setError("Passwords don't match.");
       return;
@@ -125,22 +129,46 @@ export function SignupWizard() {
         )}
 
         {step === 2 && (
-          <StepShell
-            title={`Almost there, ${firstName || "legend"}.`}
-            subtitle="Name your business and pick a password."
-          >
-            <form onSubmit={submitFinal} className="space-y-3">
+          <StepShell title="Tell us about the business." subtitle="This goes on your reports.">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void saveSignupLeadAction({ email, firstName, lastName, mobile, businessName });
+                setStep(3);
+              }}
+              className="space-y-3"
+            >
               <input
-                name="businessName"
                 required
                 autoFocus
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
                 placeholder="Business name"
                 className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
               />
               <input
+                value={abn}
+                onChange={(e) => setAbn(e.target.value)}
+                placeholder="ABN (optional)"
+                className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+              />
+              <BigButton type="submit">Next</BigButton>
+              <BackLink onClick={() => setStep(1)} />
+            </form>
+          </StepShell>
+        )}
+
+        {step === 3 && (
+          <StepShell
+            title={`Almost there, ${firstName || "legend"}.`}
+            subtitle="Pick a password to secure your account."
+          >
+            <form onSubmit={submitFinal} className="space-y-3">
+              <input
                 name="password"
                 type="password"
                 required
+                autoFocus
                 minLength={8}
                 autoComplete="new-password"
                 placeholder="Password (8+ characters)"
@@ -159,7 +187,7 @@ export function SignupWizard() {
               <BigButton type="submit" disabled={pending}>
                 {pending ? "Creating your account..." : "Create my account"}
               </BigButton>
-              <BackLink onClick={() => setStep(1)} />
+              <BackLink onClick={() => setStep(2)} />
             </form>
           </StepShell>
         )}
@@ -193,7 +221,7 @@ function StepShell({
 function StepDots({ step }: { step: number }) {
   return (
     <div className="mb-8 flex items-center justify-center gap-2">
-      {[0, 1, 2].map((i) => (
+      {[0, 1, 2, 3].map((i) => (
         <span
           key={i}
           className={`h-1.5 rounded-full transition-all ${

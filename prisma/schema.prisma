@@ -75,13 +75,14 @@ enum ResultStatus {
 // remains is exactly the list of people who started but didn't finish —
 // shown in the platform console so the owner can follow them up.
 model SignupLead {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  firstName String?
-  lastName  String?
-  mobile    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  email        String   @unique
+  firstName    String?
+  lastName     String?
+  mobile       String?
+  businessName String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 // A tenant business (e.g. an electrical contracting company) using this system.

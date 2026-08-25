@@ -18,6 +18,7 @@ export async function saveSignupLeadAction(input: {
   firstName?: string;
   lastName?: string;
   mobile?: string;
+  businessName?: string;
 }) {
   const email = clean(input.email)?.toLowerCase();
   // Only track plausible emails, and never shadow a real account.
@@ -29,6 +30,7 @@ export async function saveSignupLeadAction(input: {
     firstName: clean(input.firstName),
     lastName: clean(input.lastName),
     mobile: clean(input.mobile, 40),
+    businessName: clean(input.businessName),
   };
 
   await prisma.signupLead.upsert({
@@ -39,6 +41,7 @@ export async function saveSignupLeadAction(input: {
       ...(details.firstName ? { firstName: details.firstName } : {}),
       ...(details.lastName ? { lastName: details.lastName } : {}),
       ...(details.mobile ? { mobile: details.mobile } : {}),
+      ...(details.businessName ? { businessName: details.businessName } : {}),
     },
   });
 }

@@ -27,6 +27,9 @@ export function LeadsList({ leads }: { leads: SignupLead[] }) {
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-slate-900">
                   {[lead.firstName, lead.lastName].filter(Boolean).join(" ") || "Name not captured"}
+                  {lead.businessName && (
+                    <span className="font-normal text-slate-500"> — {lead.businessName}</span>
+                  )}
                 </p>
                 <p className="truncate text-xs text-slate-500">
                   <a href={`mailto:${lead.email}`} className="text-brand-700 hover:underline">
