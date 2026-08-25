@@ -35,8 +35,13 @@ export function TestChecklist({
   const [openId, setOpenId] = useState<string | null>(null);
   const resultByFitting = new Map(results.map((r) => [r.fittingId, r]));
 
-  const tested = fittings.filter((f) => resultByFitting.has(f.id)).length;
-  const failCount = results.filter((r) => r.overallResult !== "PASS").length;
+  // A result row can exist purely from the energised pre-check (before any
+  // discharge testing), so "tested" means the discharge result was actually
+  // recorded, not just that a row exists.
+  const tested = fittings.filter((f) => resultByFitting.get(f.id)?.durationTestPass != null).length;
+  const failCount = results.filter(
+    (r) => r.durationTestPass != null && r.overallResult !== "PASS"
+  ).length;
 
   return (
     <div>
@@ -120,7 +125,7 @@ function FittingRow({
 }
 
 function ResultBadge({ result }: { result?: FittingTestResult }) {
-  if (!result) return <Badge color="slate">Pending</Badge>;
+  if (!result || result.durationTestPass == null) return <Badge color="slate">Pending</Badge>;
   if (result.overallResult === "PASS") return <Badge color="green">Pass</Badge>;
   if (result.overallResult === "FAIL") return <Badge color="red">Fail</Badge>;
   return <Badge color="amber">Needs repair</Badge>;

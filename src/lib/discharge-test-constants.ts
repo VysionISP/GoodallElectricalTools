@@ -1,0 +1,1 @@
+export const DISCHARGE_DURATION_SECONDS = 90 * 60;

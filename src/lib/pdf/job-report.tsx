@@ -89,12 +89,15 @@ export function JobReportDocument({
   fittings: FittingWithResult[];
   template?: ResolvedTemplateConfig;
 }) {
-  const tested = fittings.filter((f) => f.result);
+  // A result row can exist purely from the pre-test energised walkthrough
+  // (before the discharge test itself has run), so "tested" means the
+  // discharge result was actually recorded, not just that a row exists.
+  const tested = fittings.filter((f) => f.result?.durationTestPass != null);
   const passCount = tested.filter((f) => f.result!.overallResult === "PASS").length;
   const failCount = tested.filter((f) => f.result!.overallResult === "FAIL").length;
   const repairCount = tested.filter((f) => f.result!.overallResult === "NEEDS_REPAIR").length;
   const needsAttention = fittings.filter(
-    (f) => f.result && f.result.overallResult !== "PASS"
+    (f) => f.result?.durationTestPass != null && f.result.overallResult !== "PASS"
   );
   const columns = template.columns.filter((c) => c in COLUMN_STYLES);
 
@@ -169,7 +172,7 @@ export function JobReportDocument({
                 <Text style={[sharedStyles.td, styles.colType]}>{TYPE_LABELS[f.fittingType]}</Text>
               )}
               <View style={[styles.colResult, { padding: 5 }]}>
-                {f.result ? (
+                {f.result?.durationTestPass != null ? (
                   <Text style={[sharedStyles.pill, resultPillStyle(f.result.overallResult)]}>
                     {resultLabel(f.result.overallResult)}
                   </Text>

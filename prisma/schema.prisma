@@ -54,6 +54,15 @@ enum JobStatus {
   COMPLETED
 }
 
+// Guided walkthrough for an Exit & Emergency Lighting discharge test job.
+// Unused (stays at its default) for RCD_TESTING jobs.
+enum DischargePhase {
+  ENERGISED_CHECK // walking through confirming every fitting is illuminated before starting
+  DISCHARGE_TEST // the 90-minute discharge timer is running (or paused)
+  REVIEW // timer finished/ended, confirming which fittings failed
+  DONE // reviewed and confirmed
+}
+
 // Shared pass/fail/needs-repair outcome used by every tool's test result.
 enum ResultStatus {
   PASS
@@ -196,6 +205,11 @@ model Job {
   notes            String?
   createdAt        DateTime          @default(now())
 
+  // Discharge test walkthrough state (Exit & Emergency Lighting jobs only).
+  dischargePhase          DischargePhase @default(ENERGISED_CHECK)
+  dischargeRunningSince   DateTime? // set while the 90-min timer is actively counting down; null when paused/not started
+  dischargeElapsedSeconds Int            @default(0) // accumulated elapsed time across pause/resume segments
+
   fittingTestResults FittingTestResult[]
   rcdTestResults     RcdTestResult[]
 
@@ -214,6 +228,7 @@ model FittingTestResult {
   beforePhotoPath String?
   afterPhotoPath  String?
 
+  energisedPass         Boolean? // pre-test walkthrough: is the fitting illuminated/powered
   durationTestPass      Boolean? // 90 min discharge test
   illuminationPass      Boolean?
   batteryConditionPass  Boolean?

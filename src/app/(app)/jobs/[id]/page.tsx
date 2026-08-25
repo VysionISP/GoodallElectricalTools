@@ -7,8 +7,8 @@ import { DownloadIcon } from "@/components/icons";
 import { ToolBadge } from "@/components/tool-badge";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { jobTitle } from "@/lib/job-labels";
-import { TestChecklist } from "./test-checklist";
 import { RcdTestChecklist } from "./rcd-test-checklist";
+import { DischargeTestFlow } from "./discharge-test-flow";
 import { JobActions } from "./job-actions";
 
 export default async function JobDetailPage({
@@ -77,12 +77,23 @@ export default async function JobDetailPage({
         {job.notes && <span className="text-slate-500 w-full">Notes: {job.notes}</span>}
       </Card>
 
-      <JobActions jobId={job.id} status={job.status} />
+      <JobActions
+        jobId={job.id}
+        status={job.status}
+        showStatusButtons={job.toolType === "RCD_TESTING"}
+      />
 
       {job.toolType === "RCD_TESTING" ? (
         <RcdTestChecklist jobId={job.id} rcdUnits={job.site.rcdUnits} results={job.rcdTestResults} />
       ) : (
-        <TestChecklist jobId={job.id} fittings={job.site.fittings} results={job.fittingTestResults} />
+        <DischargeTestFlow
+          jobId={job.id}
+          phase={job.dischargePhase}
+          runningSince={job.dischargeRunningSince}
+          elapsedSeconds={job.dischargeElapsedSeconds}
+          fittings={job.site.fittings}
+          results={job.fittingTestResults}
+        />
       )}
     </div>
   );

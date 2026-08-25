@@ -5,13 +5,21 @@ import { useRouter } from "next/navigation";
 import { deleteJobAction, setJobStatusAction } from "@/lib/actions/jobs";
 import { Button } from "@/components/ui";
 
-export function JobActions({ jobId, status }: { jobId: string; status: string }) {
+export function JobActions({
+  jobId,
+  status,
+  showStatusButtons = true,
+}: {
+  jobId: string;
+  status: string;
+  showStatusButtons?: boolean;
+}) {
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
   return (
     <div className="flex flex-wrap gap-2">
-      {status === "SCHEDULED" && (
+      {showStatusButtons && status === "SCHEDULED" && (
         <Button
           variant="secondary"
           disabled={pending}
@@ -20,7 +28,7 @@ export function JobActions({ jobId, status }: { jobId: string; status: string })
           Start job
         </Button>
       )}
-      {status !== "COMPLETED" && (
+      {showStatusButtons && status !== "COMPLETED" && (
         <Button
           disabled={pending}
           onClick={() => startTransition(() => setJobStatusAction(jobId, "COMPLETED"))}
@@ -28,7 +36,7 @@ export function JobActions({ jobId, status }: { jobId: string; status: string })
           Mark as completed
         </Button>
       )}
-      {status === "COMPLETED" && (
+      {showStatusButtons && status === "COMPLETED" && (
         <Button
           variant="secondary"
           disabled={pending}
