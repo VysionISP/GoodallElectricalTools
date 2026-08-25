@@ -81,6 +81,13 @@ model Business {
   recNumber  String? // Registered Electrical Contractor / license number
   abn        String?
   suspended  Boolean  @default(false) // platform admin switch: suspended businesses can't sign in or use the app
+  // Set when the post-signup onboarding wizard is finished; null routes the
+  // business to /onboarding before they can use the app. Backfilled to
+  // createdAt for businesses that predate onboarding.
+  onboardedAt DateTime?
+  // True while the explore-the-app demo dataset (customer/site/fittings/
+  // jobs) is loaded — shows the "clear demo data" bar across the app.
+  demoData   Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -123,6 +130,10 @@ model Customer {
   contactEmail String?
   contactPhone String?
   notes        String?
+  // Part of the explore-the-app demo dataset. Deleting demo customers
+  // cascades to their sites, fittings, RCD units, jobs and results, so this
+  // one flag is enough to wipe the whole demo.
+  isDemo       Boolean  @default(false)
   createdAt    DateTime @default(now())
 
   sites               Site[]

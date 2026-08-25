@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { SidebarLinks, BottomNavLinks, type NavItem } from "@/components/nav-links";
+import { DemoBanner } from "@/components/demo-banner";
 import { logoutAction } from "@/lib/actions/auth";
 import {
   BuildingIcon,
@@ -29,8 +31,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const navItems = session.user.isPlatformAdmin ? [...NAV_ITEMS, PLATFORM_NAV_ITEM] : NAV_ITEMS;
   const business = await prisma.business.findUnique({
     where: { id: session.user.businessId },
-    select: { name: true, logoPath: true },
+    select: { name: true, logoPath: true, onboardedAt: true, demoData: true },
   });
+
+  // New businesses finish the setup wizard before using the app.
+  if (business && !business.onboardedAt) redirect("/onboarding");
 
   return (
     <div className="flex min-h-screen w-full bg-slate-50">
@@ -119,6 +124,8 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
             </button>
           </form>
         </header>
+
+        {business?.demoData && <DemoBanner />}
 
         <main className="flex-1 px-4 py-5 pb-24 md:px-8 md:py-8 md:pb-8">
           <div className="mx-auto w-full max-w-6xl">{children}</div>
