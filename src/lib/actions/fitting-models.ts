@@ -38,7 +38,10 @@ export async function createFittingModelAction(formData: FormData): Promise<Crea
     data: { businessId: session.user.businessId, brand, model, fittingType, photoPath },
   });
 
-  revalidatePath("/sites");
+  // The wizard lives under /sites/[id]/devices/new and the admin manager
+  // under /settings/catalog — refresh both trees.
+  revalidatePath("/sites", "layout");
+  revalidatePath("/settings/catalog");
   return { id: created.id };
 }
 
@@ -70,5 +73,36 @@ export async function setFittingModelPhotoAction(
   await deleteUploadedFile(scope, model.photoPath);
 
   await prisma.fittingModel.update({ where: { id: modelId }, data: { photoPath } });
-  revalidatePath("/sites");
+  revalidatePath("/sites", "layout");
+  revalidatePath("/settings/catalog");
+}
+
+/** Removes a business's own catalog entry. Shared (seeded) entries can't be
+ * deleted — other businesses may rely on them — and an entry still linked
+ * to recorded fittings is blocked so no register silently loses its model
+ * info. Admin-only, matching the catalogue management page. */
+export async function deleteFittingModelAction(modelId: string): Promise<ActionResult> {
+  const session = await requireSession();
+  if (session.user.role !== "OWNER" && session.user.role !== "ADMIN") {
+    return { error: "Only owners and admins can delete catalogue entries." };
+  }
+
+  const model = await prisma.fittingModel.findUnique({
+    where: { id: modelId },
+    include: { _count: { select: { fittings: true } } },
+  });
+  if (!model || model.businessId !== session.user.businessId) {
+    return { error: "Catalogue entry not found." };
+  }
+  if (model._count.fittings > 0) {
+    return {
+      error: `This model is linked to ${model._count.fittings} recorded fitting(s) and can't be deleted.`,
+    };
+  }
+
+  await deleteUploadedFile(model.businessId, model.photoPath);
+  await prisma.fittingModel.delete({ where: { id: modelId } });
+
+  revalidatePath("/sites", "layout");
+  revalidatePath("/settings/catalog");
 }
