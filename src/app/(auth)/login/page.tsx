@@ -3,7 +3,6 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { loginAction, type ActionResult } from "@/lib/actions/auth";
-import { Button, Card, ErrorText, Input, Label } from "@/components/ui";
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(
@@ -12,33 +11,46 @@ export default function LoginPage() {
   );
 
   return (
-    <Card className="p-6">
-      <form action={formAction} className="space-y-4">
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" autoComplete="email" required />
-        </div>
-        <div>
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-          />
-        </div>
-        <ErrorText>{state?.error}</ErrorText>
-        <Button type="submit" className="w-full" disabled={pending}>
+    <div>
+      <h1 className="text-3xl font-bold text-white sm:text-4xl">Welcome back.</h1>
+      <p className="mt-2 text-base text-brand-100/70">Sign in to pick up where you left off.</p>
+
+      <form action={formAction} className="mx-auto mt-8 w-full max-w-md space-y-3 text-left">
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          autoFocus
+          autoComplete="email"
+          placeholder="Email address"
+          className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+        />
+        <input
+          id="password"
+          name="password"
+          type="password"
+          required
+          autoComplete="current-password"
+          placeholder="Password"
+          className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+        />
+        {state?.error && <p className="text-sm font-medium text-red-300">{state.error}</p>}
+        <button
+          type="submit"
+          disabled={pending}
+          className="w-full rounded-xl bg-brand-500 px-4 py-3.5 text-base font-semibold text-brand-950 hover:bg-brand-400 disabled:opacity-60"
+        >
           {pending ? "Signing in..." : "Sign in"}
-        </Button>
+        </button>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-500">
+
+      <p className="mt-6 text-sm text-brand-100/60">
         New business?{" "}
-        <Link href="/signup" className="font-medium text-brand-700 hover:underline">
+        <Link href="/signup" className="font-medium text-brand-300 hover:text-white">
           Create an account
         </Link>
       </p>
-    </Card>
+    </div>
   );
 }
