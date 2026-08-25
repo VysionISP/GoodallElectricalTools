@@ -2,21 +2,24 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/session";
+import { requirePlatformAdmin } from "@/lib/session";
 import { saveUploadedFile, deleteUploadedFile, SHARED_UPLOAD_SCOPE } from "@/lib/upload";
 import type { ActionResult } from "@/lib/actions/auth";
 import type { FittingType } from "@/generated/prisma/client";
+
+// The device catalogue is centrally managed: only the platform admin can
+// add products, attach photos, or remove entries. Businesses pick from the
+// shared catalogue (or skip) when adding fittings — they can't extend it
+// themselves for now, so every business sees one consistent product list.
 
 const FITTING_TYPES: FittingType[] = ["EXIT_SIGN", "EMERGENCY_LIGHT", "COMBINED"];
 
 export type CreateModelResult = { error: string } | { id: string };
 
-/** Adds a business's own catalog entry — used when a device's brand/model
- * isn't in the shared catalog yet. Returns the new entry's id so the wizard
- * can select it immediately. Called directly (not form-bound) since the
- * caller needs the created id back. */
+/** Adds a product to the shared catalogue. Called directly (not form-bound)
+ * since the caller wants the created id back. */
 export async function createFittingModelAction(formData: FormData): Promise<CreateModelResult> {
-  const session = await requireSession();
+  await requirePlatformAdmin();
 
   const brand = String(formData.get("brand") ?? "").trim();
   const model = String(formData.get("model") ?? "").trim();
@@ -28,37 +31,33 @@ export async function createFittingModelAction(formData: FormData): Promise<Crea
   const photo = formData.get("photo");
   if (photo instanceof File && photo.size > 0) {
     try {
-      photoPath = await saveUploadedFile(photo, session.user.businessId, "fitting-models", "image");
+      photoPath = await saveUploadedFile(photo, SHARED_UPLOAD_SCOPE, "fitting-models", "image");
     } catch (err) {
       return { error: err instanceof Error ? err.message : "Could not upload photo." };
     }
   }
 
   const created = await prisma.fittingModel.create({
-    data: { businessId: session.user.businessId, brand, model, fittingType, photoPath },
+    data: { businessId: null, brand, model, fittingType, photoPath },
   });
 
   // The wizard lives under /sites/[id]/devices/new and the admin manager
-  // under /settings/catalog — refresh both trees.
+  // under /admin/catalog — refresh both trees.
   revalidatePath("/sites", "layout");
-  revalidatePath("/settings/catalog");
+  revalidatePath("/admin/catalog");
   return { id: created.id };
 }
 
-/** Sets/replaces the reference photo on any catalog entry the technician can
- * see (shared or their own business's), so photos fill in organically as
- * real devices are actually photographed on site. */
+/** Sets/replaces the reference photo on a catalogue entry. */
 export async function setFittingModelPhotoAction(
   modelId: string,
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
-  const session = await requireSession();
+  await requirePlatformAdmin();
 
   const model = await prisma.fittingModel.findUnique({ where: { id: modelId } });
-  if (!model || (model.businessId !== null && model.businessId !== session.user.businessId)) {
-    return { error: "Catalog entry not found." };
-  }
+  if (!model) return { error: "Catalogue entry not found." };
 
   const photo = formData.get("photo");
   if (!(photo instanceof File) || photo.size === 0) return { error: "Choose a photo." };
@@ -74,35 +73,28 @@ export async function setFittingModelPhotoAction(
 
   await prisma.fittingModel.update({ where: { id: modelId }, data: { photoPath } });
   revalidatePath("/sites", "layout");
-  revalidatePath("/settings/catalog");
+  revalidatePath("/admin/catalog");
 }
 
-/** Removes a business's own catalog entry. Shared (seeded) entries can't be
- * deleted — other businesses may rely on them — and an entry still linked
- * to recorded fittings is blocked so no register silently loses its model
- * info. Admin-only, matching the catalogue management page. */
+/** Removes a catalogue entry. Entries still linked to recorded fittings are
+ * blocked so no site register silently loses its model info. */
 export async function deleteFittingModelAction(modelId: string): Promise<ActionResult> {
-  const session = await requireSession();
-  if (session.user.role !== "OWNER" && session.user.role !== "ADMIN") {
-    return { error: "Only owners and admins can delete catalogue entries." };
-  }
+  await requirePlatformAdmin();
 
   const model = await prisma.fittingModel.findUnique({
     where: { id: modelId },
     include: { _count: { select: { fittings: true } } },
   });
-  if (!model || model.businessId !== session.user.businessId) {
-    return { error: "Catalogue entry not found." };
-  }
+  if (!model) return { error: "Catalogue entry not found." };
   if (model._count.fittings > 0) {
     return {
       error: `This model is linked to ${model._count.fittings} recorded fitting(s) and can't be deleted.`,
     };
   }
 
-  await deleteUploadedFile(model.businessId, model.photoPath);
+  await deleteUploadedFile(model.businessId ?? SHARED_UPLOAD_SCOPE, model.photoPath);
   await prisma.fittingModel.delete({ where: { id: modelId } });
 
   revalidatePath("/sites", "layout");
-  revalidatePath("/settings/catalog");
+  revalidatePath("/admin/catalog");
 }

@@ -80,6 +80,7 @@ model Business {
   address    String?
   recNumber  String? // Registered Electrical Contractor / license number
   abn        String?
+  suspended  Boolean  @default(false) // platform admin switch: suspended businesses can't sign in or use the app
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -100,6 +101,11 @@ model User {
   email        String   @unique
   passwordHash String
   role         Role     @default(TECHNICIAN)
+  // Platform-level super admin: manages all tenant businesses and the shared
+  // device catalogue via /admin. Granted to the first account created on an
+  // install (whoever deploys the platform owns it); Role stays the
+  // within-business permission level.
+  isPlatformAdmin Boolean @default(false)
   createdAt    DateTime @default(now())
 
   jobs Job[] @relation("TechnicianJobs")

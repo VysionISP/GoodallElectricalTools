@@ -8,7 +8,7 @@ import {
   deleteFittingModelAction,
   setFittingModelPhotoAction,
 } from "@/lib/actions/fitting-models";
-import { Badge, Button, Card, ErrorText, Input, Label, Select } from "@/components/ui";
+import { Button, Card, ErrorText, Input, Label, Select } from "@/components/ui";
 import { CameraIcon, PlusIcon, TrashIcon } from "@/components/icons";
 
 const TYPE_LABELS: Record<FittingType, string> = {
@@ -42,7 +42,7 @@ export function CatalogManager({ catalog: initialCatalog }: { catalog: CatalogEn
   }
 
   async function remove(entry: CatalogEntry) {
-    if (!confirm(`Delete ${entry.brand} ${entry.model} from your catalogue?`)) return;
+    if (!confirm(`Delete ${entry.brand} ${entry.model} from the shared catalogue?`)) return;
     setBusyId(entry.id);
     setError(undefined);
     const result = await deleteFittingModelAction(entry.id);
@@ -58,20 +58,23 @@ export function CatalogManager({ catalog: initialCatalog }: { catalog: CatalogEn
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="max-w-xl text-sm text-slate-500">
-          These are the devices technicians pick from when adding fittings to a site. Attach a photo
-          of each product so it can be visually matched on site — photos you add to shared entries
-          help every future job.
+          Every business picks from this shared catalogue when adding fittings to a site. Attach a
+          photo of each product so technicians can visually match the device in front of them.
         </p>
         <Button variant="secondary" onClick={() => setAdding((v) => !v)}>
           <PlusIcon className="h-4 w-4" />
-          {adding ? "Cancel" : "Add device"}
+          {adding ? "Cancel" : "Add product"}
         </Button>
       </div>
 
-      {adding && <NewDeviceForm onCreated={(entry) => {
-        setCatalog((c) => [...c, entry]);
-        setAdding(false);
-      }} />}
+      {adding && (
+        <NewDeviceForm
+          onCreated={(entry) => {
+            setCatalog((c) => [...c, entry]);
+            setAdding(false);
+          }}
+        />
+      )}
 
       <ErrorText>{error}</ErrorText>
 
@@ -103,16 +106,11 @@ export function CatalogManager({ catalog: initialCatalog }: { catalog: CatalogEn
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-slate-900">{entry.brand}</p>
                     <p className="truncate text-xs text-slate-500">{entry.model}</p>
-                    <div className="mt-1 flex items-center gap-1.5">
-                      <Badge color={entry.businessId ? "blue" : "slate"}>
-                        {entry.businessId ? "Your entry" : "Shared"}
-                      </Badge>
-                      {entry._count.fittings > 0 && (
-                        <span className="text-[11px] text-slate-400">
-                          {entry._count.fittings} in use
-                        </span>
-                      )}
-                    </div>
+                    {entry._count.fittings > 0 && (
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        {entry._count.fittings} fitting{entry._count.fittings === 1 ? "" : "s"} in use
+                      </p>
+                    )}
                     <div className="mt-2 flex items-center gap-3">
                       <label className="cursor-pointer text-xs font-medium text-brand-700 hover:underline">
                         {busyId === entry.id
@@ -132,17 +130,15 @@ export function CatalogManager({ catalog: initialCatalog }: { catalog: CatalogEn
                           }}
                         />
                       </label>
-                      {entry.businessId && (
-                        <button
-                          type="button"
-                          disabled={busyId === entry.id}
-                          onClick={() => remove(entry)}
-                          className="text-xs font-medium text-slate-400 hover:text-red-600"
-                          aria-label={`Delete ${entry.brand} ${entry.model}`}
-                        >
-                          <TrashIcon className="h-3.5 w-3.5" />
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        disabled={busyId === entry.id}
+                        onClick={() => remove(entry)}
+                        className="text-xs font-medium text-slate-400 hover:text-red-600"
+                        aria-label={`Delete ${entry.brand} ${entry.model}`}
+                      >
+                        <TrashIcon className="h-3.5 w-3.5" />
+                      </button>
                     </div>
                   </div>
                 </Card>
@@ -178,7 +174,7 @@ function NewDeviceForm({ onCreated }: { onCreated: (entry: CatalogEntry) => void
           const photo = formData.get("photo");
           onCreated({
             id: result.id,
-            businessId: "own", // only used for the "Your entry" badge client-side
+            businessId: null,
             brand: String(formData.get("brand")),
             model: String(formData.get("model")),
             fittingType: String(formData.get("fittingType")) as FittingType,

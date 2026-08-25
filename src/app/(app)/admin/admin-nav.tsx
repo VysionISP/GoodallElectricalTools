@@ -4,11 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const TABS = [
-  { href: "/settings", label: "Business" },
-  { href: "/settings/templates", label: "Report templates" },
+  { href: "/admin", label: "Businesses" },
+  { href: "/admin/catalog", label: "Device catalogue" },
 ];
 
-export function SettingsNav() {
+export function AdminNav() {
   const pathname = usePathname();
 
   return (
@@ -16,7 +16,7 @@ export function SettingsNav() {
       <nav className="-mb-px flex gap-5">
         {TABS.map((tab) => {
           const active =
-            tab.href === "/settings" ? pathname === "/settings" : pathname.startsWith(tab.href);
+            tab.href === "/admin" ? pathname === "/admin" : pathname.startsWith(tab.href);
           return (
             <Link
               key={tab.href}

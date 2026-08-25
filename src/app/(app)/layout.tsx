@@ -10,6 +10,7 @@ import {
   HomeIcon,
   LogoutIcon,
   SettingsIcon,
+  ShieldIcon,
   UsersIcon,
 } from "@/components/icons";
 
@@ -21,8 +22,11 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/settings", label: "Settings", icon: <SettingsIcon /> },
 ];
 
+const PLATFORM_NAV_ITEM: NavItem = { href: "/admin", label: "Platform", icon: <ShieldIcon /> };
+
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const session = await requireSession();
+  const navItems = session.user.isPlatformAdmin ? [...NAV_ITEMS, PLATFORM_NAV_ITEM] : NAV_ITEMS;
   const business = await prisma.business.findUnique({
     where: { id: session.user.businessId },
     select: { name: true, logoPath: true },
@@ -51,7 +55,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         </div>
 
         <div className="flex-1 px-3">
-          <SidebarLinks items={NAV_ITEMS} />
+          <SidebarLinks items={navItems} />
         </div>
 
         <div className="mx-3 mb-4 rounded-xl bg-brand-900 p-4">
@@ -121,7 +125,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         </main>
 
         <div className="fixed inset-x-0 bottom-0 z-10 md:hidden">
-          <BottomNavLinks items={NAV_ITEMS} />
+          <BottomNavLinks items={navItems} />
         </div>
       </div>
     </div>

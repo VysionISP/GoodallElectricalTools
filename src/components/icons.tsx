@@ -122,3 +122,10 @@ export const TrashIcon = (p: SVGProps<SVGSVGElement>) => (
     <path d="M7 7l1 13a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-13" />
   </Svg>
 );
+
+export const ShieldIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}>
+    <path d="M12 3.5 19 6v5.5c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6Z" />
+    <path d="m9.3 12 2 2 3.4-3.8" />
+  </Svg>
+);

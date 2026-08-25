@@ -6,12 +6,14 @@ declare module "next-auth" {
       id: string;
       businessId: string;
       role: "OWNER" | "ADMIN" | "TECHNICIAN";
+      isPlatformAdmin: boolean;
     } & DefaultSession["user"];
   }
 
   interface User {
     businessId: string;
     role: "OWNER" | "ADMIN" | "TECHNICIAN";
+    isPlatformAdmin: boolean;
   }
 }
 
@@ -20,6 +22,7 @@ declare module "next-auth/jwt" {
     id: string;
     businessId: string;
     role: "OWNER" | "ADMIN" | "TECHNICIAN";
+    isPlatformAdmin: boolean;
   }
 }
 
@@ -28,5 +31,6 @@ declare module "@auth/core/jwt" {
     id: string;
     businessId: string;
     role: "OWNER" | "ADMIN" | "TECHNICIAN";
+    isPlatformAdmin: boolean;
   }
 }

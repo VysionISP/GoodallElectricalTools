@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      // Uploads (fitting/job photos, logos, site-plan PDFs) come through
+      // Server Actions, and the 1MB default rejects a typical phone photo
+      // outright ("Body exceeded 1 MB limit"). Phone photos run 2–12MB and
+      // multipart adds overhead, so allow comfortably more.
+      bodySizeLimit: "25mb",
+    },
+  },
   images: {
     // Self-hosted, single-server deployment serving files straight from
     // /public/uploads — skip Next's image optimizer (and its sharp

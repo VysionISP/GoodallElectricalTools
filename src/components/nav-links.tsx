@@ -42,9 +42,14 @@ export function SidebarLinks({ items }: { items: NavItem[] }) {
 
 export function BottomNavLinks({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
+  const shown = items.slice(0, 6);
   return (
-    <nav className="grid grid-cols-5 border-t border-slate-200 bg-white">
-      {items.slice(0, 5).map((item) => {
+    <nav
+      className={`grid border-t border-slate-200 bg-white ${
+        shown.length === 6 ? "grid-cols-6" : "grid-cols-5"
+      }`}
+    >
+      {shown.map((item) => {
         const active = isActive(pathname, item.href);
         return (
           <Link

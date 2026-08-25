@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { Fitting, FittingModel, FittingType, Site } from "@/generated/prisma/client";
 import { createFittingAction } from "@/lib/actions/fittings";
-import { createFittingModelAction } from "@/lib/actions/fitting-models";
 import { suggestFittingReference } from "@/lib/naming";
 import { Badge, Button, Card, ErrorText, Input, Label, Textarea } from "@/components/ui";
-import { CameraIcon, PlusIcon } from "@/components/icons";
+import { CameraIcon } from "@/components/icons";
 
 const TYPE_LABELS: Record<FittingType, string> = {
   EXIT_SIGN: "Exit sign",
@@ -26,12 +25,11 @@ export function DeviceWizard({
   existingFittings: Fitting[];
   catalog: FittingModel[];
 }) {
-  const [catalog, setCatalog] = useState(initialCatalog);
   const [added, setAdded] = useState<{ reference: string; fittingType: FittingType; label: string }[]>([]);
   const [step, setStep] = useState<"picker" | "details">("picker");
   const [selectedType, setSelectedType] = useState<FittingType>("EMERGENCY_LIGHT");
   const [selectedModel, setSelectedModel] = useState<FittingModel | null>(null);
-  const [addingModel, setAddingModel] = useState(false);
+  const catalog = initialCatalog;
 
   const allFittings = [
     ...existingFittings,
@@ -66,15 +64,6 @@ export function DeviceWizard({
           }}
           onSkipModel={() => {
             setSelectedModel(null);
-            setStep("details");
-          }}
-          addingModel={addingModel}
-          onStartAddModel={() => setAddingModel(true)}
-          onCancelAddModel={() => setAddingModel(false)}
-          onModelCreated={(model) => {
-            setCatalog((c) => [...c, model]);
-            setAddingModel(false);
-            setSelectedModel(model);
             setStep("details");
           }}
         />
@@ -115,20 +104,12 @@ function PickerStep({
   catalog,
   onPickModel,
   onSkipModel,
-  addingModel,
-  onStartAddModel,
-  onCancelAddModel,
-  onModelCreated,
 }: {
   selectedType: FittingType;
   onSelectType: (t: FittingType) => void;
   catalog: FittingModel[];
   onPickModel: (m: FittingModel) => void;
   onSkipModel: () => void;
-  addingModel: boolean;
-  onStartAddModel: () => void;
-  onCancelAddModel: () => void;
-  onModelCreated: (m: FittingModel) => void;
 }) {
   const filtered = catalog.filter((m) => m.fittingType === selectedType);
 
@@ -157,130 +138,43 @@ function PickerStep({
         Match the photo to the physical device so you pick the right one.
       </p>
 
-      {addingModel ? (
-        <NewModelForm fittingType={selectedType} onCancel={onCancelAddModel} onCreated={onModelCreated} />
-      ) : (
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
-          {filtered.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => onPickModel(m)}
-              className="flex flex-col items-center gap-2 rounded-xl border border-slate-200 p-3 text-center hover:border-brand-300 hover:bg-brand-50/50"
-            >
-              {m.photoPath ? (
-                <Image
-                  src={m.photoPath}
-                  alt=""
-                  width={96}
-                  height={96}
-                  className="h-24 w-24 rounded-lg object-cover border border-slate-100"
-                />
-              ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-lg bg-slate-50 border border-dashed border-slate-200 text-slate-300">
-                  <CameraIcon className="h-7 w-7" />
-                </div>
-              )}
-              <div>
-                <p className="text-sm font-semibold text-slate-900">{m.brand}</p>
-                <p className="text-xs text-slate-500">{m.model}</p>
-              </div>
-            </button>
-          ))}
-
+      <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        {filtered.map((m) => (
           <button
+            key={m.id}
             type="button"
-            onClick={onStartAddModel}
-            className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 p-3 text-center text-slate-500 hover:border-brand-300 hover:text-brand-700"
+            onClick={() => onPickModel(m)}
+            className="flex flex-col items-center gap-2 rounded-xl border border-slate-200 p-3 text-center hover:border-brand-300 hover:bg-brand-50/50"
           >
-            <PlusIcon className="h-6 w-6" />
-            <span className="text-sm font-medium">Add new model to catalog</span>
+            {m.photoPath ? (
+              <Image
+                src={m.photoPath}
+                alt=""
+                width={96}
+                height={96}
+                className="h-24 w-24 rounded-lg object-cover border border-slate-100"
+              />
+            ) : (
+              <div className="flex h-24 w-24 items-center justify-center rounded-lg bg-slate-50 border border-dashed border-slate-200 text-slate-300">
+                <CameraIcon className="h-7 w-7" />
+              </div>
+            )}
+            <div>
+              <p className="text-sm font-semibold text-slate-900">{m.brand}</p>
+              <p className="text-xs text-slate-500">{m.model}</p>
+            </div>
           </button>
-        </div>
-      )}
+        ))}
+      </div>
 
-      {!addingModel && (
-        <button
-          type="button"
-          onClick={onSkipModel}
-          className="mt-3 text-xs font-medium text-slate-500 hover:text-brand-700 hover:underline"
-        >
-          Skip — I don&apos;t know the model, or it&apos;s not listed
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={onSkipModel}
+        className="mt-3 text-xs font-medium text-slate-500 hover:text-brand-700 hover:underline"
+      >
+        Skip — I don&apos;t know the model, or it&apos;s not listed
+      </button>
     </Card>
-  );
-}
-
-function NewModelForm({
-  fittingType,
-  onCancel,
-  onCreated,
-}: {
-  fittingType: FittingType;
-  onCancel: () => void;
-  onCreated: (m: FittingModel) => void;
-}) {
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | undefined>();
-  const formRef = useRef<HTMLFormElement>(null);
-
-  return (
-    <form
-      ref={formRef}
-      className="mt-3 space-y-3 rounded-xl border border-slate-200 p-4"
-      onSubmit={async (e) => {
-        e.preventDefault();
-        setPending(true);
-        setError(undefined);
-        const formData = new FormData(e.currentTarget);
-        formData.set("fittingType", fittingType);
-        const result = await createFittingModelAction(formData);
-        setPending(false);
-        if ("error" in result) {
-          setError(result.error);
-          return;
-        }
-        const brand = String(formData.get("brand"));
-        const model = String(formData.get("model"));
-        const photo = formData.get("photo");
-        const photoPath =
-          photo instanceof File && photo.size > 0 ? URL.createObjectURL(photo) : null;
-        onCreated({
-          id: result.id,
-          businessId: null,
-          brand,
-          model,
-          fittingType,
-          photoPath,
-          createdAt: new Date(),
-        });
-      }}
-    >
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <Label htmlFor="brand">Brand</Label>
-          <Input id="brand" name="brand" required />
-        </div>
-        <div>
-          <Label htmlFor="model">Model</Label>
-          <Input id="model" name="model" required />
-        </div>
-      </div>
-      <div>
-        <Label htmlFor="modelPhoto">Photo of this model (optional)</Label>
-        <Input id="modelPhoto" name="photo" type="file" accept="image/*" capture="environment" />
-      </div>
-      <ErrorText>{error}</ErrorText>
-      <div className="flex gap-2">
-        <Button type="submit" disabled={pending}>
-          {pending ? "Adding..." : "Add to catalog"}
-        </Button>
-        <Button type="button" variant="ghost" onClick={onCancel}>
-          Cancel
-        </Button>
-      </div>
-    </form>
   );
 }
 

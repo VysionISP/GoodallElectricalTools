@@ -31,6 +31,10 @@ export async function signupAction(
 
   const passwordHash = await bcrypt.hash(password, 12);
 
+  // The first account created on an install owns the platform: it manages
+  // tenant businesses and the shared device catalogue via /admin.
+  const isFirstBusiness = (await prisma.business.count()) === 0;
+
   await prisma.business.create({
     data: {
       name: businessName,
@@ -40,6 +44,7 @@ export async function signupAction(
           email,
           passwordHash,
           role: "OWNER",
+          isPlatformAdmin: isFirstBusiness,
         },
       },
     },

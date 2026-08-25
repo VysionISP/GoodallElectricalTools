@@ -14,6 +14,7 @@ export const authConfig: NextAuthConfig = {
         token.id = user.id as string;
         token.businessId = user.businessId;
         token.role = user.role;
+        token.isPlatformAdmin = user.isPlatformAdmin;
       }
       return token;
     },
@@ -21,6 +22,7 @@ export const authConfig: NextAuthConfig = {
       session.user.id = token.id;
       session.user.businessId = token.businessId;
       session.user.role = token.role;
+      session.user.isPlatformAdmin = token.isPlatformAdmin ?? false;
       return session;
     },
   },

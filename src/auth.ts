@@ -17,11 +17,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const password = credentials?.password;
         if (typeof email !== "string" || typeof password !== "string") return null;
 
-        const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+        const user = await prisma.user.findUnique({
+          where: { email: email.toLowerCase() },
+          include: { business: { select: { suspended: true } } },
+        });
         if (!user) return null;
 
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
+
+        // A suspended business's users can't sign in — platform admins are
+        // exempt so the platform owner can never lock themselves out.
+        if (user.business.suspended && !user.isPlatformAdmin) return null;
 
         return {
           id: user.id,
@@ -29,6 +36,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           businessId: user.businessId,
           role: user.role,
+          isPlatformAdmin: user.isPlatformAdmin,
         };
       },
     }),
