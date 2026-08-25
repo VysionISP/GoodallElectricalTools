@@ -144,6 +144,7 @@ model Customer {
   contactName  String?
   contactEmail String?
   contactPhone String?
+  logoPath     String? // customer's own logo, optionally shown on their reports
   notes        String?
   // Part of the explore-the-app demo dataset. Deleting demo customers
   // cascades to their sites, fittings, RCD units, jobs and results, so this
@@ -357,8 +358,13 @@ model ReportTemplate {
 
   // Layout/style
   accentColor   String  @default("#0B2D5C")
+  // Header/letterhead preset: classic | centered | banner | minimal | split.
+  // Validated in application code (see report-template-config.ts).
+  headerLayout  String  @default("classic")
   showStatCards Boolean @default(true)
   showPhotos    Boolean @default(true)
+  // Show the customer's own logo on their reports (when they have one).
+  showCustomerLogo Boolean @default(true)
   // Ordered list of column keys to show in the results table — the set of
   // valid keys is tool-specific and validated in application code.
   tableColumns  Json

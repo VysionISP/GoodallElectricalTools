@@ -4,7 +4,16 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
+import { saveUploadedFile, deleteUploadedFile } from "@/lib/upload";
 import type { ActionResult } from "@/lib/actions/auth";
+
+/** Handles the optional customer logo upload; returns undefined when no new
+ * file was chosen. */
+async function readLogoUpload(formData: FormData, businessId: string) {
+  const logo = formData.get("logo");
+  if (!(logo instanceof File) || logo.size === 0) return undefined;
+  return saveUploadedFile(logo, businessId, "customer-logos", "image");
+}
 
 export async function createCustomerAction(
   _prevState: ActionResult,
@@ -20,6 +29,13 @@ export async function createCustomerAction(
   const contactPhone = String(formData.get("contactPhone") ?? "").trim() || null;
   const notes = String(formData.get("notes") ?? "").trim() || null;
 
+  let logoPath: string | undefined;
+  try {
+    logoPath = await readLogoUpload(formData, session.user.businessId);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Could not upload logo." };
+  }
+
   const customer = await prisma.customer.create({
     data: {
       businessId: session.user.businessId,
@@ -28,6 +44,7 @@ export async function createCustomerAction(
       contactEmail,
       contactPhone,
       notes,
+      logoPath,
     },
   });
 
@@ -50,6 +67,14 @@ export async function updateCustomerAction(
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "Customer name is required." };
 
+  let logoPath: string | undefined;
+  try {
+    logoPath = await readLogoUpload(formData, session.user.businessId);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Could not upload logo." };
+  }
+  if (logoPath) await deleteUploadedFile(session.user.businessId, customer.logoPath);
+
   await prisma.customer.update({
     where: { id: customerId },
     data: {
@@ -58,6 +83,7 @@ export async function updateCustomerAction(
       contactEmail: String(formData.get("contactEmail") ?? "").trim() || null,
       contactPhone: String(formData.get("contactPhone") ?? "").trim() || null,
       notes: String(formData.get("notes") ?? "").trim() || null,
+      ...(logoPath ? { logoPath } : {}),
     },
   });
 
@@ -72,6 +98,7 @@ export async function deleteCustomerAction(customerId: string) {
   if (!customer || customer.businessId !== session.user.businessId) return;
 
   await prisma.customer.delete({ where: { id: customerId } });
+  await deleteUploadedFile(session.user.businessId, customer.logoPath);
   revalidatePath("/customers");
   redirect("/customers");
 }

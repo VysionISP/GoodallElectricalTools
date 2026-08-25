@@ -36,7 +36,7 @@ export const SHARED_UPLOAD_SCOPE = "shared";
 export async function saveUploadedFile(
   file: File,
   businessId: string,
-  category: "logos" | "fittings" | "job-photos" | "site-maps" | "fitting-models",
+  category: "logos" | "customer-logos" | "fittings" | "job-photos" | "site-maps" | "fitting-models",
   kind: "image" | "pdf" = "image"
 ): Promise<string> {
   const sourceExt = extensionOf(file.name);

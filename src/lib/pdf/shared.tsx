@@ -121,40 +121,276 @@ export const sharedStyles = StyleSheet.create({
   },
 });
 
-/** The letterhead block used at the top of every report: logo/business
- * details on the left, report title + optional custom header line on the
- * right, colored by the resolved template's accent color. */
+/* eslint-disable jsx-a11y/alt-text -- react-pdf's Image, not an <img> */
+
+const letterheadStyles = StyleSheet.create({
+  centeredWrap: { alignItems: "center", marginBottom: 16, paddingBottom: 12, borderBottomWidth: 2 },
+  centeredLogos: { flexDirection: "row", alignItems: "center", gap: 14, marginBottom: 6 },
+  banner: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginHorizontal: -36,
+    marginTop: -36,
+    marginBottom: 12,
+    paddingHorizontal: 36,
+    paddingVertical: 16,
+  },
+  bannerTitle: { fontSize: 13, fontFamily: "Helvetica-Bold", color: "#ffffff" },
+  bannerSub: { fontSize: 8, color: "rgba(255,255,255,0.75)", marginTop: 2 },
+  bannerLogoTile: {
+    backgroundColor: "#ffffff",
+    borderRadius: 4,
+    padding: 4,
+    marginLeft: 8,
+  },
+  bannerDetails: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 14,
+  },
+  minimalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    borderBottomWidth: 1,
+    paddingBottom: 6,
+    marginBottom: 4,
+  },
+  minimalBizLine: { fontSize: 8, color: colors.slate, marginBottom: 14, marginTop: 4 },
+  splitWrap: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 2,
+  },
+  splitCenter: { alignItems: "center", flex: 1, paddingHorizontal: 10 },
+  customerLogo: { width: 54, height: 40, objectFit: "contain" },
+  customerLogoPlaceholder: {
+    width: 54,
+    height: 40,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: colors.faint,
+    borderRadius: 3,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  placeholderText: { fontSize: 5.5, color: colors.faint, textAlign: "center" },
+});
+
+function CustomerLogo({
+  customerLogoPath,
+  placeholder,
+}: {
+  customerLogoPath?: string | null;
+  placeholder?: boolean;
+}) {
+  if (customerLogoPath) {
+    return <Image style={letterheadStyles.customerLogo} src={toAbsolute(customerLogoPath)!} />;
+  }
+  if (placeholder) {
+    return (
+      <View style={letterheadStyles.customerLogoPlaceholder}>
+        <Text style={letterheadStyles.placeholderText}>Customer{"\n"}logo</Text>
+      </View>
+    );
+  }
+  return null;
+}
+
+/** The letterhead block used at the top of every report, in the resolved
+ * template's chosen layout preset. `customerLogoPath` is the customer's own
+ * logo (rendered only when the template enables it); `placeholderCustomerLogo`
+ * makes the customer-logo slot visible as a dashed box when no logo exists —
+ * used by the template preview so the slot's position is obvious. */
 export function ReportLetterhead({
   business,
   title,
   subtitle,
   template,
+  customerLogoPath,
+  placeholderCustomerLogo,
 }: {
   business: Business;
   title: string;
   subtitle: string;
   template: ResolvedTemplateConfig;
+  customerLogoPath?: string | null;
+  placeholderCustomerLogo?: boolean;
 }) {
+  const accent = template.accentColor;
+  const generated = `Report generated ${formatDateTime(new Date())}`;
+  const contactLine = [business.phone, business.email].filter(Boolean).join("   ·   ");
+  const showCust = template.showCustomerLogo;
+  const custLogo = showCust ? (
+    <CustomerLogo customerLogoPath={customerLogoPath} placeholder={placeholderCustomerLogo} />
+  ) : null;
+
+  if (template.headerLayout === "centered") {
+    return (
+      <View style={[letterheadStyles.centeredWrap, { borderBottomColor: accent }]} fixed>
+        <View style={letterheadStyles.centeredLogos}>
+          {business.logoPath && <Image style={sharedStyles.logo} src={toAbsolute(business.logoPath)!} />}
+          {custLogo}
+        </View>
+        <Text style={sharedStyles.businessName}>{business.name}</Text>
+        {contactLine && <Text style={sharedStyles.businessLine}>{contactLine}</Text>}
+        <Text style={[sharedStyles.reportTitle, { color: accent, marginTop: 6 }]}>{title}</Text>
+        <Text style={sharedStyles.reportSub}>{subtitle}</Text>
+        {template.headerText && <Text style={sharedStyles.reportSub}>{template.headerText}</Text>}
+        <Text style={sharedStyles.reportSub}>{generated}</Text>
+      </View>
+    );
+  }
+
+  if (template.headerLayout === "banner") {
+    return (
+      <View fixed>
+        <View style={[letterheadStyles.banner, { backgroundColor: accent }]}>
+          <View>
+            <Text style={letterheadStyles.bannerTitle}>{title}</Text>
+            <Text style={letterheadStyles.bannerSub}>{subtitle}</Text>
+            {template.headerText && <Text style={letterheadStyles.bannerSub}>{template.headerText}</Text>}
+          </View>
+          <View style={{ flexDirection: "row" }}>
+            {business.logoPath && (
+              <View style={letterheadStyles.bannerLogoTile}>
+                <Image style={sharedStyles.logo} src={toAbsolute(business.logoPath)!} />
+              </View>
+            )}
+            {custLogo && <View style={letterheadStyles.bannerLogoTile}>{custLogo}</View>}
+          </View>
+        </View>
+        <View style={letterheadStyles.bannerDetails}>
+          <View>
+            <Text style={sharedStyles.businessName}>{business.name}</Text>
+            <Text style={sharedStyles.businessLine}>
+              {[business.address, contactLine, business.recNumber ? `REC No: ${business.recNumber}` : null]
+                .filter(Boolean)
+                .join("   ·   ")}
+            </Text>
+          </View>
+          <Text style={sharedStyles.reportSub}>{generated}</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (template.headerLayout === "minimal") {
+    return (
+      <View fixed>
+        <View style={[letterheadStyles.minimalRow, { borderBottomColor: accent }]}>
+          <View>
+            <Text style={[sharedStyles.reportTitle, { color: accent }]}>{title}</Text>
+            <Text style={sharedStyles.reportSub}>
+              {subtitle}
+              {template.headerText ? `   ·   ${template.headerText}` : ""}
+            </Text>
+          </View>
+          <Text style={sharedStyles.reportSub}>{generated}</Text>
+        </View>
+        <Text style={letterheadStyles.minimalBizLine}>
+          {[
+            business.name,
+            business.address,
+            contactLine,
+            business.recNumber ? `REC No: ${business.recNumber}` : null,
+          ]
+            .filter(Boolean)
+            .join("   ·   ")}
+        </Text>
+      </View>
+    );
+  }
+
+  if (template.headerLayout === "split") {
+    return (
+      <View style={[letterheadStyles.splitWrap, { borderBottomColor: accent }]} fixed>
+        <View>
+          {business.logoPath ? (
+            <Image style={sharedStyles.logo} src={toAbsolute(business.logoPath)!} />
+          ) : (
+            <Text style={sharedStyles.businessName}>{business.name}</Text>
+          )}
+        </View>
+        <View style={letterheadStyles.splitCenter}>
+          <Text style={[sharedStyles.reportTitle, { color: accent }]}>{title}</Text>
+          <Text style={sharedStyles.reportSub}>{subtitle}</Text>
+          {template.headerText && <Text style={sharedStyles.reportSub}>{template.headerText}</Text>}
+          <Text style={sharedStyles.reportSub}>
+            {[business.name, contactLine].filter(Boolean).join("   ·   ")}
+          </Text>
+          <Text style={sharedStyles.reportSub}>{generated}</Text>
+        </View>
+        <View>{custLogo ?? <View style={{ width: 54 }} />}</View>
+      </View>
+    );
+  }
+
+  // classic (default)
   return (
-    <View style={[sharedStyles.header, { borderBottomColor: template.accentColor }]} fixed>
+    <View style={[sharedStyles.header, { borderBottomColor: accent }]} fixed>
       <View style={sharedStyles.headerLeft}>
-        {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf's Image, not an <img> */}
         {business.logoPath && <Image style={sharedStyles.logo} src={toAbsolute(business.logoPath)!} />}
         <View>
           <Text style={sharedStyles.businessName}>{business.name}</Text>
           {business.address && <Text style={sharedStyles.businessLine}>{business.address}</Text>}
-          <Text style={sharedStyles.businessLine}>
-            {[business.phone, business.email].filter(Boolean).join("   ·   ")}
-          </Text>
+          <Text style={sharedStyles.businessLine}>{contactLine}</Text>
           {business.recNumber && <Text style={sharedStyles.businessLine}>REC No: {business.recNumber}</Text>}
         </View>
       </View>
       <View style={sharedStyles.headerRight}>
-        <Text style={[sharedStyles.reportTitle, { color: template.accentColor }]}>{title}</Text>
+        {custLogo && <View style={{ marginBottom: 4 }}>{custLogo}</View>}
+        <Text style={[sharedStyles.reportTitle, { color: accent }]}>{title}</Text>
         <Text style={sharedStyles.reportSub}>{subtitle}</Text>
         {template.headerText && <Text style={sharedStyles.reportSub}>{template.headerText}</Text>}
-        <Text style={sharedStyles.reportSub}>Report generated {formatDateTime(new Date())}</Text>
+        <Text style={sharedStyles.reportSub}>{generated}</Text>
       </View>
+    </View>
+  );
+}
+
+export type InfoItem = { label: string; value: string; sub?: string | null };
+
+/** The customer/site/test-details section under the letterhead, laid out to
+ * match the template's header preset: boxes in a row (classic/banner/split),
+ * centered boxes (centered), or compact single lines (minimal). */
+export function ReportInfoSection({
+  template,
+  items,
+}: {
+  template: ResolvedTemplateConfig;
+  items: InfoItem[];
+}) {
+  if (template.headerLayout === "minimal") {
+    return (
+      <View style={{ marginBottom: 14 }}>
+        {items.map((item) => (
+          <View key={item.label} style={{ flexDirection: "row", marginBottom: 3 }}>
+            <Text style={[sharedStyles.infoLabel, { width: 70, marginBottom: 0 }]}>{item.label}</Text>
+            <Text style={{ fontSize: 8.5, color: colors.ink }}>
+              {item.value}
+              {item.sub ? `  —  ${item.sub}` : ""}
+            </Text>
+          </View>
+        ))}
+      </View>
+    );
+  }
+
+  const centered = template.headerLayout === "centered";
+  return (
+    <View style={sharedStyles.infoRow}>
+      {items.map((item) => (
+        <View key={item.label} style={[sharedStyles.infoBox, centered ? { alignItems: "center" } : {}]}>
+          <Text style={sharedStyles.infoLabel}>{item.label}</Text>
+          <Text style={sharedStyles.infoValue}>{item.value}</Text>
+          {item.sub && <Text style={sharedStyles.infoSub}>{item.sub}</Text>}
+        </View>
+      ))}
     </View>
   );
 }

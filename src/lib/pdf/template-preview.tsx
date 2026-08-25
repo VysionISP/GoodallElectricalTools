@@ -1,6 +1,6 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { Business, ToolType } from "@/generated/prisma/client";
-import { colors, sharedStyles, ReportLetterhead, ReportFooter, ReportDisclaimer } from "@/lib/pdf/shared";
+import { colors, sharedStyles, ReportLetterhead, ReportInfoSection, ReportFooter, ReportDisclaimer } from "@/lib/pdf/shared";
 import type { ResolvedTemplateConfig } from "@/lib/report-template-config";
 
 const styles = StyleSheet.create({
@@ -103,23 +103,17 @@ export function TemplatePreviewDocument({
           title={isRcd ? "RCD / Safety Switch Test Report" : "Emergency & Exit Lighting Test Report"}
           subtitle="Preview — sample data"
           template={template}
+          placeholderCustomerLogo
         />
 
-        <View style={sharedStyles.infoRow}>
-          <View style={sharedStyles.infoBox}>
-            <Text style={sharedStyles.infoLabel}>Customer</Text>
-            <Text style={sharedStyles.infoValue}>Sample Customer Pty Ltd</Text>
-          </View>
-          <View style={sharedStyles.infoBox}>
-            <Text style={sharedStyles.infoLabel}>Site</Text>
-            <Text style={sharedStyles.infoValue}>123 Example Street</Text>
-          </View>
-          <View style={sharedStyles.infoBox}>
-            <Text style={sharedStyles.infoLabel}>Test details</Text>
-            <Text style={sharedStyles.infoValue}>25 Aug 2026</Text>
-            <Text style={sharedStyles.infoSub}>Technician: Sample Technician</Text>
-          </View>
-        </View>
+        <ReportInfoSection
+          template={template}
+          items={[
+            { label: "Customer", value: "Sample Customer Pty Ltd" },
+            { label: "Site", value: "123 Example Street" },
+            { label: "Test details", value: "25 Aug 2026", sub: "Technician: Sample Technician" },
+          ]}
+        />
 
         {template.showStatCards && (
           <View style={styles.summaryRow}>

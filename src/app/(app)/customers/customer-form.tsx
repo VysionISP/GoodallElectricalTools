@@ -43,6 +43,21 @@ export function CustomerForm({
           />
         </div>
         <div>
+          <Label htmlFor="logo">Customer logo {customer?.logoPath ? "(replace existing)" : ""}</Label>
+          {customer?.logoPath && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={customer.logoPath}
+              alt=""
+              className="mb-2 h-16 w-auto rounded-lg border border-slate-100 bg-white object-contain p-1"
+            />
+          )}
+          <Input id="logo" name="logo" type="file" accept="image/*" />
+          <p className="mt-1 text-xs text-slate-400">
+            Optional — can be shown on this customer&apos;s reports (toggle per report template).
+          </p>
+        </div>
+        <div>
           <Label htmlFor="notes">Notes</Label>
           <Textarea id="notes" name="notes" rows={3} defaultValue={customer?.notes ?? ""} />
         </div>

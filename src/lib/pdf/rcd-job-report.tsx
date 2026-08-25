@@ -9,7 +9,7 @@ import type {
   User,
 } from "@/generated/prisma/client";
 import { formatDate } from "@/lib/format";
-import { colors, sharedStyles, toAbsolute, ReportLetterhead, ReportFooter, ReportDisclaimer } from "@/lib/pdf/shared";
+import { colors, sharedStyles, toAbsolute, ReportLetterhead, ReportInfoSection, ReportFooter, ReportDisclaimer } from "@/lib/pdf/shared";
 import { defaultTemplateConfig, type ResolvedTemplateConfig } from "@/lib/report-template-config";
 
 const styles = StyleSheet.create({
@@ -112,27 +112,21 @@ export function RcdJobReportDocument({
           title="RCD / Safety Switch Test Report"
           subtitle={FREQUENCY_LABELS[job.rcdTestFrequency ?? "TWELVE_MONTHLY"]}
           template={template}
+          customerLogoPath={customer.logoPath}
         />
 
-        <View style={sharedStyles.infoRow}>
-          <View style={sharedStyles.infoBox}>
-            <Text style={sharedStyles.infoLabel}>Customer</Text>
-            <Text style={sharedStyles.infoValue}>{customer.name}</Text>
-            {customer.contactName && <Text style={sharedStyles.infoSub}>{customer.contactName}</Text>}
-          </View>
-          <View style={sharedStyles.infoBox}>
-            <Text style={sharedStyles.infoLabel}>Site</Text>
-            <Text style={sharedStyles.infoValue}>{site.name}</Text>
-            {site.address && <Text style={sharedStyles.infoSub}>{site.address}</Text>}
-          </View>
-          <View style={sharedStyles.infoBox}>
-            <Text style={sharedStyles.infoLabel}>Test details</Text>
-            <Text style={sharedStyles.infoValue}>
-              {job.completedDate ? formatDate(job.completedDate) : formatDate(job.createdAt)}
-            </Text>
-            <Text style={sharedStyles.infoSub}>Technician: {technician?.name ?? "—"}</Text>
-          </View>
-        </View>
+        <ReportInfoSection
+          template={template}
+          items={[
+            { label: "Customer", value: customer.name, sub: customer.contactName },
+            { label: "Site", value: site.name, sub: site.address },
+            {
+              label: "Test details",
+              value: job.completedDate ? formatDate(job.completedDate) : formatDate(job.createdAt),
+              sub: `Technician: ${technician?.name ?? "—"}`,
+            },
+          ]}
+        />
 
         {template.showStatCards && (
           <View style={styles.summaryRow}>

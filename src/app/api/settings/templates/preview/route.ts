@@ -3,7 +3,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { TemplatePreviewDocument } from "@/lib/pdf/template-preview";
-import { DEFAULT_ACCENT_COLOR, parseTemplateColumns, type ResolvedTemplateConfig } from "@/lib/report-template-config";
+import { DEFAULT_ACCENT_COLOR, parseHeaderLayout, parseTemplateColumns, type ResolvedTemplateConfig } from "@/lib/report-template-config";
 import type { ToolType } from "@/generated/prisma/client";
 
 /** Renders a live preview PDF from the current (possibly unsaved) template
@@ -23,6 +23,8 @@ export async function POST(req: Request) {
 
   const template: ResolvedTemplateConfig = {
     accentColor,
+    headerLayout: parseHeaderLayout(formData.get("headerLayout")),
+    showCustomerLogo: formData.get("showCustomerLogo") === "on",
     showStatCards: formData.get("showStatCards") === "on",
     showPhotos: formData.get("showPhotos") === "on",
     columns: parseTemplateColumns(toolType, formData.getAll("columns")),

@@ -6,14 +6,16 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import type { ActionResult } from "@/lib/actions/auth";
 import type { ToolType } from "@/generated/prisma/client";
-import { COLUMN_DEFS } from "@/lib/report-template-config";
+import { COLUMN_DEFS, parseHeaderLayout } from "@/lib/report-template-config";
 
 const TOOL_TYPES: ToolType[] = ["EXIT_EMERGENCY_LIGHTING", "RCD_TESTING"];
 
 function readTemplateFields(toolType: ToolType, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const accentColor = String(formData.get("accentColor") ?? "#047857").trim();
+  const headerLayout = parseHeaderLayout(formData.get("headerLayout"));
   const showStatCards = formData.get("showStatCards") === "on";
+  const showCustomerLogo = formData.get("showCustomerLogo") === "on";
   const showPhotos = formData.get("showPhotos") === "on";
   const isDefault = formData.get("isDefault") === "on";
   const allowedColumns = new Set(COLUMN_DEFS[toolType].map((c) => c.key));
@@ -22,7 +24,7 @@ function readTemplateFields(toolType: ToolType, formData: FormData) {
   const footerText = String(formData.get("footerText") ?? "").trim() || null;
   const disclaimerText = String(formData.get("disclaimerText") ?? "").trim() || null;
 
-  return { name, accentColor, showStatCards, showPhotos, isDefault, columns, headerText, footerText, disclaimerText };
+  return { name, accentColor, headerLayout, showStatCards, showPhotos, showCustomerLogo, isDefault, columns, headerText, footerText, disclaimerText };
 }
 
 export async function createTemplateAction(
@@ -53,6 +55,8 @@ export async function createTemplateAction(
         name: fields.name,
         isDefault: fields.isDefault,
         accentColor: fields.accentColor,
+        headerLayout: fields.headerLayout,
+        showCustomerLogo: fields.showCustomerLogo,
         showStatCards: fields.showStatCards,
         showPhotos: fields.showPhotos,
         tableColumns: fields.columns,
@@ -98,6 +102,8 @@ export async function updateTemplateAction(
         name: fields.name,
         isDefault: fields.isDefault,
         accentColor: fields.accentColor,
+        headerLayout: fields.headerLayout,
+        showCustomerLogo: fields.showCustomerLogo,
         showStatCards: fields.showStatCards,
         showPhotos: fields.showPhotos,
         tableColumns: fields.columns,
