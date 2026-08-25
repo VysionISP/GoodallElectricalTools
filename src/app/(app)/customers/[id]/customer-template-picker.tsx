@@ -21,27 +21,28 @@ export function CustomerTemplatePicker({
   const [pending, startTransition] = useTransition();
 
   return (
-    <div className="flex items-center gap-3">
-      <ToolBadge toolType={toolType} />
-      <div className="min-w-0 flex-1">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center gap-3">
+        <ToolBadge toolType={toolType} />
         <p className="text-sm font-medium text-slate-900">{TOOL_LABELS[toolType]}</p>
       </div>
-      <Select
-        className="w-56"
-        disabled={pending || templates.length === 0}
-        defaultValue={currentTemplateId ?? ""}
-        onChange={(e) => {
-          const templateId = e.target.value;
-          startTransition(() => setCustomerTemplateAction(customerId, toolType, templateId));
-        }}
-      >
-        <option value="">Business default</option>
-        {templates.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.name}
-          </option>
-        ))}
-      </Select>
+      <div className="w-full sm:w-56">
+        <Select
+          disabled={pending || templates.length === 0}
+          defaultValue={currentTemplateId ?? ""}
+          onChange={(e) => {
+            const templateId = e.target.value;
+            startTransition(() => setCustomerTemplateAction(customerId, toolType, templateId));
+          }}
+        >
+          <option value="">Business default</option>
+          {templates.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
+          ))}
+        </Select>
+      </div>
     </div>
   );
 }

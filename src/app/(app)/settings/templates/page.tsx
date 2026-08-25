@@ -63,21 +63,42 @@ export default async function TemplatesPage() {
                         </div>
                         {t.isDefault && <Badge color="green">Default</Badge>}
                       </div>
-                      {isAdmin && (
-                        <div className="flex shrink-0 items-center gap-3">
-                          <Link
-                            href={`/settings/templates/${t.id}/edit`}
-                            className="text-xs font-medium text-brand-700 hover:underline"
-                          >
-                            Edit
-                          </Link>
-                          <form action={deleteTemplateAction.bind(null, t.id)}>
-                            <button type="submit" className="text-xs font-medium text-slate-400 hover:text-red-600">
-                              Delete
-                            </button>
-                          </form>
-                        </div>
-                      )}
+                      <div className="flex shrink-0 items-center gap-3">
+                        <form
+                          action="/api/settings/templates/preview"
+                          method="post"
+                          target="_blank"
+                        >
+                          <input type="hidden" name="toolType" value={t.toolType} />
+                          <input type="hidden" name="accentColor" value={t.accentColor} />
+                          {t.showStatCards && <input type="hidden" name="showStatCards" value="on" />}
+                          {t.showPhotos && <input type="hidden" name="showPhotos" value="on" />}
+                          {(Array.isArray(t.tableColumns) ? t.tableColumns : []).map((c) => (
+                            <input key={String(c)} type="hidden" name="columns" value={String(c)} />
+                          ))}
+                          <input type="hidden" name="headerText" value={t.headerText ?? ""} />
+                          <input type="hidden" name="footerText" value={t.footerText ?? ""} />
+                          <input type="hidden" name="disclaimerText" value={t.disclaimerText ?? ""} />
+                          <button type="submit" className="text-xs font-medium text-brand-700 hover:underline">
+                            Preview
+                          </button>
+                        </form>
+                        {isAdmin && (
+                          <>
+                            <Link
+                              href={`/settings/templates/${t.id}/edit`}
+                              className="text-xs font-medium text-brand-700 hover:underline"
+                            >
+                              Edit
+                            </Link>
+                            <form action={deleteTemplateAction.bind(null, t.id)}>
+                              <button type="submit" className="text-xs font-medium text-slate-400 hover:text-red-600">
+                                Delete
+                              </button>
+                            </form>
+                          </>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>

@@ -1,7 +1,11 @@
 import { type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type LabelHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
+import { twMerge } from "tailwind-merge";
 
+// twMerge (not a plain join) so a caller's className can override a
+// component's base classes on the same property (e.g. width) instead of
+// silently losing to it depending on Tailwind's generated stylesheet order.
 function cx(...classes: Array<string | false | undefined>) {
-  return classes.filter(Boolean).join(" ");
+  return twMerge(classes.filter(Boolean).join(" "));
 }
 
 export function Card({ children, className, ...props }: HTMLAttributes<HTMLDivElement>) {

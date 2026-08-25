@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef, useState } from "react";
 import type { ReportTemplate, ToolType } from "@/generated/prisma/client";
 import type { ActionResult } from "@/lib/actions/auth";
 import { Button, Card, ErrorText, Input, Label, Textarea } from "@/components/ui";
@@ -20,10 +20,37 @@ export function TemplateForm({
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(action, undefined);
   const columns = COLUMN_DEFS[toolType];
   const selectedColumns = new Set(parseTemplateColumns(toolType, template?.tableColumns));
+  const formRef = useRef<HTMLFormElement>(null);
+  const [previewing, setPreviewing] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+
+  async function handlePreview() {
+    if (!formRef.current) return;
+    setPreviewing(true);
+    setPreviewError(null);
+    // Open the tab synchronously (before the await) so browsers don't treat
+    // it as an unrequested popup and block it.
+    const previewWindow = window.open("", "_blank");
+    try {
+      const formData = new FormData(formRef.current);
+      const res = await fetch("/api/settings/templates/preview", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Could not generate preview.");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      if (previewWindow) previewWindow.location.href = url;
+      else setPreviewError("Your browser blocked the preview tab — allow pop-ups and try again.");
+    } catch {
+      previewWindow?.close();
+      setPreviewError("Could not generate preview. Check your inputs and try again.");
+    } finally {
+      setPreviewing(false);
+    }
+  }
 
   return (
     <Card className="p-5 max-w-xl">
-      <form action={formAction} className="space-y-5">
+      <form ref={formRef} action={formAction} className="space-y-5">
+        <input type="hidden" name="toolType" value={toolType} />
         <div>
           <Label htmlFor="name">Template name</Label>
           <Input
@@ -128,9 +155,15 @@ export function TemplateForm({
         </label>
 
         <ErrorText>{state?.error}</ErrorText>
-        <Button type="submit" disabled={pending}>
-          {pending ? "Saving..." : submitLabel}
-        </Button>
+        <ErrorText>{previewError}</ErrorText>
+        <div className="flex gap-2">
+          <Button type="submit" disabled={pending}>
+            {pending ? "Saving..." : submitLabel}
+          </Button>
+          <Button type="button" variant="secondary" disabled={previewing} onClick={handlePreview}>
+            {previewing ? "Generating..." : "Preview PDF"}
+          </Button>
+        </div>
       </form>
     </Card>
   );
