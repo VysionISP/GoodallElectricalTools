@@ -683,9 +683,15 @@ function Footer() {
   return (
     <footer className="border-t border-white/5">
       <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-xs text-brand-100/50 sm:flex-row md:px-8">
-        <div className="flex items-center gap-2">
-          <Image src="/brand/voltrecord-icon.png" alt="" width={20} height={20} className="h-5 w-5" />
-          VoltRecord — electrical compliance, recorded.
+        <div className="flex items-center gap-2.5">
+          <Image
+            src="/brand/voltrecord-lockup-dark.png"
+            alt="VoltRecord"
+            width={112}
+            height={21}
+            className="h-5 w-auto"
+          />
+          <span>— electrical compliance, recorded.</span>
         </div>
         <div className="flex gap-5">
           <a href="#features" className="hover:text-white">
