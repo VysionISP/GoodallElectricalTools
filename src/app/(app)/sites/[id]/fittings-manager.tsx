@@ -11,7 +11,7 @@ import {
   updateFittingAction,
 } from "@/lib/actions/fittings";
 import { Badge, Button, Card, ErrorText, Input, Label, Select } from "@/components/ui";
-import { CameraIcon, PlusIcon, TrashIcon } from "@/components/icons";
+import { CameraIcon, DownloadIcon, PlusIcon, TrashIcon } from "@/components/icons";
 
 const TYPE_LABELS: Record<FittingType, string> = {
   EXIT_SIGN: "Exit sign",
@@ -31,10 +31,28 @@ export function FittingsManager({ siteId, fittings }: { siteId: string; fittings
         <h2 className="text-sm font-semibold text-slate-700">
           Fittings <span className="text-slate-400 font-normal">({active.length})</span>
         </h2>
-        <Button variant="secondary" onClick={() => setAdding((v) => !v)}>
-          <PlusIcon className="h-4 w-4" />
-          {adding ? "Cancel" : "Add fitting"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <a
+            href={`/api/sites/${siteId}/fittings/export`}
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+          >
+            <DownloadIcon className="h-4 w-4" />
+            CSV
+          </a>
+          <a
+            href={`/api/sites/${siteId}/fittings/report`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+          >
+            <DownloadIcon className="h-4 w-4" />
+            PDF register
+          </a>
+          <Button variant="secondary" onClick={() => setAdding((v) => !v)}>
+            <PlusIcon className="h-4 w-4" />
+            {adding ? "Cancel" : "Add fitting"}
+          </Button>
+        </div>
       </div>
 
       {adding && (
