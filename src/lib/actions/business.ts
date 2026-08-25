@@ -41,7 +41,7 @@ export async function updateBusinessAction(
   });
 
   revalidatePath("/settings");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
 }
 
 export async function createStaffAction(

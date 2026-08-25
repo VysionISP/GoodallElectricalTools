@@ -25,7 +25,7 @@ export async function requireSession() {
 export async function requireAdmin() {
   const session = await requireSession();
   if (session.user.role !== "OWNER" && session.user.role !== "ADMIN") {
-    redirect("/");
+    redirect("/dashboard");
   }
   return session;
 }
@@ -39,6 +39,6 @@ export async function requirePlatformAdmin() {
     where: { id: session.user.id },
     select: { isPlatformAdmin: true },
   });
-  if (!user?.isPlatformAdmin) redirect("/");
+  if (!user?.isPlatformAdmin) redirect("/dashboard");
   return session;
 }

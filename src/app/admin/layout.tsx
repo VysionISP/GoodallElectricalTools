@@ -41,7 +41,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
         <div className="mx-3 mb-4">
           <Link
-            href="/"
+            href="/dashboard"
             className="block rounded-xl bg-slate-900 p-4 text-sm font-medium text-slate-200 hover:bg-slate-800"
           >
             ← Open the app
@@ -83,7 +83,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           </div>
           <div className="flex items-center gap-1">
             <Link
-              href="/"
+              href="/dashboard"
               className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
             >
               Open the app

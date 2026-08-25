@@ -9,7 +9,7 @@ export default async function OnboardingPage() {
   const business = await prisma.business.findUniqueOrThrow({
     where: { id: session.user.businessId },
   });
-  if (business.onboardedAt) redirect("/");
+  if (business.onboardedAt) redirect("/dashboard");
 
   return (
     <div className="flex min-h-screen items-start justify-center bg-slate-50 px-4 py-10">

@@ -96,7 +96,7 @@ export function CatalogManager({ catalog: initialCatalog }: { catalog: CatalogEn
                       alt=""
                       width={72}
                       height={72}
-                      className="h-[72px] w-[72px] shrink-0 rounded-lg border border-slate-100 object-cover"
+                      className="h-[72px] w-[72px] shrink-0 rounded-lg border border-slate-100 bg-white object-contain p-0.5"
                     />
                   ) : (
                     <div className="flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-slate-300">

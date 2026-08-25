@@ -9,7 +9,9 @@ const PUBLIC_PATHS = ["/login", "/signup", "/suspended"];
 export default auth((req) => {
   const { pathname } = req.nextUrl;
 
-  const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  const isLanding = pathname === "/";
+  const isPublic =
+    isLanding || PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   const isAuthed = !!req.auth;
 
   if (!isAuthed && !isPublic) {
@@ -18,8 +20,10 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isAuthed && (pathname === "/login" || pathname === "/signup")) {
-    const home = req.auth?.user?.isPlatformAdmin ? "/admin" : "/";
+  // Signed-in users skip the marketing/auth pages and go to their home:
+  // the platform console for the platform admin, the dashboard otherwise.
+  if (isAuthed && (isLanding || pathname === "/login" || pathname === "/signup")) {
+    const home = req.auth?.user?.isPlatformAdmin ? "/admin" : "/dashboard";
     return NextResponse.redirect(new URL(home, req.nextUrl.origin));
   }
 

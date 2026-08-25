@@ -152,7 +152,7 @@ function PickerStep({
                 alt=""
                 width={96}
                 height={96}
-                className="h-24 w-24 rounded-lg object-cover border border-slate-100"
+                className="h-24 w-24 rounded-lg border border-slate-100 bg-white object-contain p-1"
               />
             ) : (
               <div className="flex h-24 w-24 items-center justify-center rounded-lg bg-slate-50 border border-dashed border-slate-200 text-slate-300">
@@ -205,7 +205,7 @@ function DetailsStep({
             alt=""
             width={56}
             height={56}
-            className="h-14 w-14 rounded-lg object-cover border border-slate-100"
+            className="h-14 w-14 rounded-lg border border-slate-100 bg-white object-contain p-0.5"
           />
         ) : (
           <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-slate-50 border border-dashed border-slate-200 text-slate-300">

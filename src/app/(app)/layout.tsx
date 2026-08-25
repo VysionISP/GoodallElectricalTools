@@ -17,7 +17,7 @@ import {
 } from "@/components/icons";
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Overview", icon: <HomeIcon /> },
+  { href: "/dashboard", label: "Overview", icon: <HomeIcon /> },
   { href: "/customers", label: "Customers", icon: <UsersIcon /> },
   { href: "/sites", label: "Sites", icon: <BuildingIcon /> },
   { href: "/jobs", label: "Test runs", icon: <ClipboardIcon /> },

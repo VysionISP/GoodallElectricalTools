@@ -138,7 +138,7 @@ export async function confirmDischargeReviewAction(jobId: string) {
 
   revalidatePath(`/jobs/${jobId}`);
   revalidatePath("/jobs");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
 }
 
 /** Reopens a completed discharge test for further edits. */

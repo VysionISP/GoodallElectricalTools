@@ -78,7 +78,7 @@ export async function finishOnboardingAction(choice: "customer" | "demo" | "skip
   });
 
   revalidatePath("/", "layout");
-  redirect(choice === "customer" ? "/customers/new" : "/");
+  redirect(choice === "customer" ? "/customers/new" : "/dashboard");
 }
 
 /** Wipes the demo dataset: demo customers cascade to their sites, fittings,

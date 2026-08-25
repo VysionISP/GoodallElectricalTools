@@ -11,7 +11,9 @@ export async function signupAction(
   formData: FormData
 ): Promise<ActionResult> {
   const businessName = String(formData.get("businessName") ?? "").trim();
-  const name = String(formData.get("name") ?? "").trim();
+  const firstName = String(formData.get("firstName") ?? "").trim();
+  const lastName = String(formData.get("lastName") ?? "").trim();
+  const name = `${firstName} ${lastName}`.trim();
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
@@ -53,7 +55,7 @@ export async function signupAction(
   await signIn("credentials", {
     email,
     password,
-    redirectTo: "/",
+    redirectTo: "/dashboard",
   });
 }
 
@@ -77,7 +79,7 @@ export async function loginAction(
     where: { email },
     select: { isPlatformAdmin: true },
   });
-  const redirectTo = user?.isPlatformAdmin ? "/admin" : "/";
+  const redirectTo = user?.isPlatformAdmin ? "/admin" : "/dashboard";
 
   try {
     await signIn("credentials", {

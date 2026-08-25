@@ -81,7 +81,7 @@ export async function setJobStatusAction(jobId: string, status: JobStatus) {
 
   revalidatePath(`/jobs/${jobId}`);
   revalidatePath("/jobs");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
 }
 
 export async function deleteJobAction(jobId: string) {
