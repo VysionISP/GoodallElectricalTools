@@ -31,7 +31,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const navItems = session.user.isPlatformAdmin ? [...NAV_ITEMS, PLATFORM_NAV_ITEM] : NAV_ITEMS;
   const business = await prisma.business.findUnique({
     where: { id: session.user.businessId },
-    select: { name: true, logoPath: true, onboardedAt: true, demoData: true },
+    select: { onboardedAt: true, demoData: true },
   });
 
   // New businesses finish the setup wizard before using the app.
@@ -40,23 +40,15 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen w-full bg-slate-50">
       <aside className="hidden md:flex md:w-64 md:flex-col md:bg-brand-950">
-        <div className="flex items-center gap-2.5 px-5 py-6">
-          {business?.logoPath ? (
-            <Image
-              src={business.logoPath}
-              alt=""
-              width={32}
-              height={32}
-              className="h-8 w-8 rounded-lg object-contain bg-white"
-            />
-          ) : (
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-white font-bold text-sm">
-              {(business?.name ?? "VR").slice(0, 1).toUpperCase()}
-            </div>
-          )}
-          <p className="truncate text-base font-semibold text-white">
-            {business?.name ?? "VoltRecord"}
-          </p>
+        <div className="px-5 py-6">
+          <Image
+            src="/brand/voltrecord-lockup-dark.png"
+            alt="VoltRecord"
+            width={150}
+            height={34}
+            priority
+            className="h-8 w-auto"
+          />
         </div>
 
         <div className="flex-1 px-3">
@@ -96,24 +88,14 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
       <div className="flex min-h-screen w-full flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:hidden">
-          <div className="flex items-center gap-2">
-            {business?.logoPath ? (
-              <Image
-                src={business.logoPath}
-                alt=""
-                width={28}
-                height={28}
-                className="h-7 w-7 rounded-md object-contain border border-slate-100"
-              />
-            ) : (
-              <div className="h-7 w-7 rounded-md bg-brand-700 text-white flex items-center justify-center font-bold text-xs">
-                {(business?.name ?? "VR").slice(0, 2).toUpperCase()}
-              </div>
-            )}
-            <span className="text-sm font-semibold text-slate-900 truncate max-w-[50vw]">
-              {business?.name ?? "VoltRecord"}
-            </span>
-          </div>
+          <Image
+            src="/brand/voltrecord-lockup-light.png"
+            alt="VoltRecord"
+            width={132}
+            height={30}
+            priority
+            className="h-7 w-auto"
+          />
           <form action={logoutAction}>
             <button
               type="submit"
