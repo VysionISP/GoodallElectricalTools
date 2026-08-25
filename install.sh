@@ -34,10 +34,10 @@ fi
 echo "-- Installing npm dependencies..."
 npm install
 
-# 5. Approve any install scripts npm blocked (some npm setups gate native
-#    module builds like better-sqlite3 behind an explicit approval step)
+# 5. Fallback: package.json pre-approves the install scripts native modules
+#    like better-sqlite3 need (via "allowScripts"), but approve again here
+#    in case a dependency bump introduces a new one npm hasn't seen yet.
 if npm install-scripts ls >/dev/null 2>&1; then
-  echo "-- Approving required install scripts..."
   npm install-scripts approve better-sqlite3 prisma @prisma/engines unrs-resolver 2>/dev/null || true
   npm install
 fi
