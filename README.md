@@ -32,6 +32,17 @@ npm run dev
 Open http://localhost:3000, click **Create an account** to register your
 business (this creates the first user as the business Owner), then sign in.
 
+**Testing on your phone while running `npm run dev`:** open it via your
+computer's LAN IP (e.g. `http://192.168.1.23:3000`), not `localhost`, since
+your phone can't reach your computer's `localhost`. Common private-network
+ranges (`192.168.*.*`, `10.*.*.*`, `172.16-31.*.*`) are already allowed for
+this in `next.config.ts` via `allowedDevOrigins`; if your network uses
+something else, every button silently doing nothing (while pages otherwise
+load fine) is the symptom — add your IP to that list and restart `npm run
+dev`. This is a `next dev`-only restriction and doesn't apply to a
+production build (`npm run build && npm run start`), which is what you
+should run for actual day-to-day use anyway — see **Deploying** below.
+
 ## Environment variables
 
 | Variable | Description |
