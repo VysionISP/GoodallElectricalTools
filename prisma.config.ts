@@ -9,6 +9,8 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Falls back to the same default as .env.example so the CLI still works
+    // if DATABASE_URL isn't set in the environment for some reason.
+    url: process.env["DATABASE_URL"] ?? "file:./dev.db",
   },
 });
