@@ -1,0 +1,186 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  TECHNICIAN
+}
+
+enum FittingType {
+  EXIT_SIGN
+  EMERGENCY_LIGHT
+  COMBINED
+}
+
+enum TestType {
+  SIX_MONTHLY_DISCHARGE
+  ANNUAL_FULL_TEST
+}
+
+enum JobStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum FittingResult {
+  PASS
+  FAIL
+  NEEDS_REPAIR
+}
+
+// A tenant business (e.g. an electrical contracting company) using this system.
+model Business {
+  id         String   @id @default(cuid())
+  name       String
+  logoPath   String?
+  email      String?
+  phone      String?
+  address    String?
+  recNumber  String? // Registered Electrical Contractor / license number
+  abn        String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  users     User[]
+  customers Customer[]
+  sites     Site[]
+  jobs      Job[]
+}
+
+model User {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(TECHNICIAN)
+  createdAt    DateTime @default(now())
+
+  jobs Job[] @relation("TechnicianJobs")
+
+  @@index([businessId])
+}
+
+model Customer {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  name         String
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  sites Site[]
+
+  @@index([businessId])
+}
+
+// A physical site/premises belonging to a customer, containing fittings to be tested.
+model Site {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  name       String
+  address    String?
+  mapPdfPath String? // uploaded site/floor plan PDF
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  fittings Fitting[]
+  jobs     Job[]
+
+  @@index([businessId])
+  @@index([customerId])
+}
+
+// A persistent record of a single exit sign / emergency light fitting at a site.
+// Test results accumulate against this fitting across multiple job visits.
+model Fitting {
+  id     String @id @default(cuid())
+  siteId String
+  site   Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  reference   String // short ID/label, e.g. "EL-01"
+  location    String // description, e.g. "Level 1 corridor near stairwell"
+  fittingType FittingType @default(EMERGENCY_LIGHT)
+  photoPath   String? // reference photo showing the fitting's location
+  active      Boolean     @default(true) // false = decommissioned/removed
+  createdAt   DateTime    @default(now())
+
+  testResults FittingTestResult[]
+
+  @@index([siteId])
+}
+
+// A single testing visit/job at a site.
+model Job {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  siteId     String
+  site       Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  technicianId String?
+  technician   User?   @relation("TechnicianJobs", fields: [technicianId], references: [id], onDelete: SetNull)
+
+  testType      TestType  @default(SIX_MONTHLY_DISCHARGE)
+  status        JobStatus @default(SCHEDULED)
+  scheduledDate DateTime?
+  completedDate DateTime?
+  notes         String?
+  createdAt     DateTime  @default(now())
+
+  testResults FittingTestResult[]
+
+  @@index([businessId])
+  @@index([siteId])
+}
+
+// The result of testing one fitting during one job visit.
+model FittingTestResult {
+  id        String  @id @default(cuid())
+  jobId     String
+  job       Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  fittingId String
+  fitting   Fitting @relation(fields: [fittingId], references: [id], onDelete: Cascade)
+
+  beforePhotoPath String?
+  afterPhotoPath  String?
+
+  durationTestPass      Boolean? // 90 min discharge test
+  illuminationPass      Boolean?
+  batteryConditionPass  Boolean?
+  lampConditionPass     Boolean?
+  physicalDamagePass    Boolean?
+  signageVisiblePass    Boolean?
+
+  overallResult FittingResult @default(PASS)
+  comments      String?
+  repairNotes   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([jobId])
+  @@index([fittingId])
+  @@unique([jobId, fittingId])
+}
