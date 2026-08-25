@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { CheckIcon, XIcon, CameraIcon, DownloadIcon } from "@/components/icons";
+import { PricingSection } from "./pricing-section";
 
 // Public marketing landing page. Signed-in visitors never see this — the
 // middleware routes them straight to their dashboard (or the platform
@@ -594,129 +595,6 @@ function HowItWorks() {
         </div>
       </div>
     </section>
-  );
-}
-
-/* --------------------------------- pricing --------------------------------- */
-
-function PricingSection() {
-  return (
-    <section id="pricing" className="bg-slate-50 text-slate-900">
-      <div className="mx-auto w-full max-w-6xl px-4 py-20 md:px-8">
-        <p className="text-center text-xs font-semibold uppercase tracking-widest text-brand-600">
-          Pricing
-        </p>
-        <h2 className="mx-auto mt-2 max-w-xl text-center text-3xl font-bold tracking-tight">
-          Every feature on every plan. Pay for seats, nothing else.
-        </h2>
-        <p className="mx-auto mt-3 max-w-xl text-center text-sm text-slate-500">
-          Unlimited customers, sites, test visits and PDF reports on all plans — the only difference
-          is how many people are on your team.
-        </p>
-
-        <div className="mx-auto mt-12 grid max-w-4xl gap-5 md:grid-cols-3">
-          <PricingCard
-            name="Solo"
-            price="$49"
-            blurb="One tester, the whole toolkit."
-            seats="1 user"
-            points={[
-              "Unlimited customers, sites & fittings",
-              "Guided discharge & RCD testing",
-              "Branded PDF reports",
-              "Device photo catalogue",
-            ]}
-          />
-          <PricingCard
-            name="Team"
-            price="$119"
-            blurb="The office plus techs in the field."
-            seats="Up to 5 users"
-            highlighted
-            points={[
-              "Everything in Solo",
-              "Owner, admin & technician roles",
-              "Report templates per customer",
-              "Shared job & site history",
-            ]}
-          />
-          <PricingCard
-            name="Unlimited"
-            price="$249"
-            blurb="Whole crews, no seat counting."
-            seats="Unlimited users"
-            points={[
-              "Everything in Team",
-              "Unlimited technicians",
-              "Priority support",
-              "Help importing existing registers",
-            ]}
-          />
-        </div>
-
-        <p className="mt-8 text-center text-xs text-slate-400">
-          Prices per month in AUD, ex GST. Two months free when billed annually. Start with demo
-          data and set up your business before you pay anything.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function PricingCard({
-  name,
-  price,
-  blurb,
-  seats,
-  points,
-  highlighted,
-}: {
-  name: string;
-  price: string;
-  blurb: string;
-  seats: string;
-  points: string[];
-  highlighted?: boolean;
-}) {
-  return (
-    <div
-      className={`relative flex flex-col rounded-2xl border bg-white p-6 ${
-        highlighted ? "border-electric shadow-lg shadow-electric/10" : "border-slate-200"
-      }`}
-    >
-      {highlighted && (
-        <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-600 px-3 py-1 text-[11px] font-semibold text-white">
-          Most popular
-        </span>
-      )}
-      <h3 className="text-sm font-semibold text-slate-900">{name}</h3>
-      <p className="mt-0.5 text-xs text-slate-500">{blurb}</p>
-      <p className="mt-4">
-        <span className="text-4xl font-bold tracking-tight">{price}</span>
-        <span className="text-sm text-slate-400"> /month</span>
-      </p>
-      <p className="mt-1 text-xs font-medium text-brand-700">{seats}</p>
-      <ul className="mt-5 flex-1 space-y-2.5">
-        {points.map((point) => (
-          <li key={point} className="flex gap-2 text-sm text-slate-600">
-            <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-700">
-              <CheckIcon className="h-2.5 w-2.5" />
-            </span>
-            {point}
-          </li>
-        ))}
-      </ul>
-      <Link
-        href="/signup"
-        className={`mt-6 rounded-xl py-2.5 text-center text-sm font-semibold ${
-          highlighted
-            ? "bg-brand-600 text-white hover:bg-brand-700"
-            : "border border-slate-200 text-slate-700 hover:border-brand-300 hover:text-brand-700"
-        }`}
-      >
-        Get started
-      </Link>
-    </div>
   );
 }
 
