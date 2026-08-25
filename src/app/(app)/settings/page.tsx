@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { Card, Badge } from "@/components/ui";
 import { BusinessProfileForm } from "./business-profile-form";
+import { NotificationSettingsForm } from "./notification-settings-form";
 import { StaffForm, RemoveStaffButton } from "./staff-form";
 import { PasswordForm } from "./password-form";
 
@@ -46,6 +47,15 @@ export default async function SettingsPage() {
               </p>
             </div>
             <BusinessProfileForm business={business} />
+          </Card>
+        </section>
+      )}
+
+      {isAdmin && (
+        <section>
+          <h2 className="text-sm font-semibold text-slate-700 mb-3">Notifications</h2>
+          <Card className="p-5">
+            <NotificationSettingsForm business={business} />
           </Card>
         </section>
       )}

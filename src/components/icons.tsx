@@ -129,3 +129,11 @@ export const ShieldIcon = (p: SVGProps<SVGSVGElement>) => (
     <path d="m9.3 12 2 2 3.4-3.8" />
   </Svg>
 );
+
+export const CalendarIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}>
+    <rect x="3.5" y="5" width="17" height="15.5" rx="2" />
+    <path d="M3.5 9.5h17" />
+    <path d="M8 3v3.5M16 3v3.5" />
+  </Svg>
+);

@@ -107,3 +107,30 @@ export async function updatePasswordAction(
 
   revalidatePath("/settings");
 }
+
+/** Saves the business's notification preferences. Email delivery itself
+ * isn't live yet — these are stored so it can switch on without changes. */
+export async function updateNotificationSettingsAction(
+  _prevState: ActionResult,
+  formData: FormData
+): Promise<ActionResult> {
+  const session = await requireAdmin();
+
+  const raw = Number(formData.get("notifyDaysBefore"));
+  const notifyDaysBefore = Number.isInteger(raw) && raw >= 1 && raw <= 120 ? raw : null;
+  if (notifyDaysBefore === null) {
+    return { error: "Reminder lead time must be between 1 and 120 days." };
+  }
+
+  await prisma.business.update({
+    where: { id: session.user.businessId },
+    data: {
+      notifyDaysBefore,
+      notifyCustomerOnDue: formData.get("notifyCustomerOnDue") === "on",
+      emailReportOnComplete: formData.get("emailReportOnComplete") === "on",
+    },
+  });
+
+  revalidatePath("/settings");
+  revalidatePath("/schedule");
+}

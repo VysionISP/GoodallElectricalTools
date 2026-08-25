@@ -49,11 +49,12 @@ const GRID_COLS: Record<number, string> = {
   4: "grid-cols-4",
   5: "grid-cols-5",
   6: "grid-cols-6",
+  7: "grid-cols-7",
 };
 
 export function BottomNavLinks({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
-  const shown = items.slice(0, 6);
+  const shown = items.slice(0, 7);
   return (
     <nav
       className={`grid border-t border-slate-200 bg-white ${GRID_COLS[shown.length] ?? "grid-cols-5"}`}

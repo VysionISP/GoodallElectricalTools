@@ -103,6 +103,12 @@ model Business {
   // True while the explore-the-app demo dataset (customer/site/fittings/
   // jobs) is loaded — shows the "clear demo data" bar across the app.
   demoData   Boolean  @default(false)
+
+  // Notification preferences (email delivery itself lands later; these are
+  // configured now so it can switch on without another migration).
+  notifyDaysBefore      Int     @default(14) // remind the business this many days before a test is due
+  notifyCustomerOnDue   Boolean @default(false) // also email the customer that their test is due
+  emailReportOnComplete Boolean @default(false) // email the finished report to the customer
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

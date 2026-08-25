@@ -8,6 +8,7 @@ import { DemoBanner } from "@/components/demo-banner";
 import { logoutAction } from "@/lib/actions/auth";
 import {
   BuildingIcon,
+  CalendarIcon,
   ClipboardIcon,
   HomeIcon,
   LogoutIcon,
@@ -21,6 +22,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/customers", label: "Customers", icon: <UsersIcon /> },
   { href: "/sites", label: "Sites", icon: <BuildingIcon /> },
   { href: "/jobs", label: "Test runs", icon: <ClipboardIcon /> },
+  { href: "/schedule", label: "Schedule", icon: <CalendarIcon /> },
   { href: "/settings", label: "Settings", icon: <SettingsIcon /> },
 ];
 
