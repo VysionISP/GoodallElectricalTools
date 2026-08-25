@@ -205,7 +205,7 @@ export function SignupWizard() {
         )}
 
         <p className="mt-8 text-xs text-brand-100/50">
-          Self-hosted for your business — your data stays on your server.
+          Your business&apos;s data is private to your team — nobody else on the platform sees it.
         </p>
       </main>
     </div>
