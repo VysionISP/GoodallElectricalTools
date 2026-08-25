@@ -1,4 +1,4 @@
-import type { DischargePhase, Fitting, FittingModel, FittingTestResult } from "@/generated/prisma/client";
+import type { DischargePhase, Fitting, FittingModel, FittingTestResult, TestType } from "@/generated/prisma/client";
 import { EnergisedWalkthrough } from "./energised-walkthrough";
 import { DischargeTimer } from "./discharge-timer";
 import { DischargeReview } from "./discharge-review";
@@ -7,6 +7,7 @@ import { DischargeReview } from "./discharge-review";
  * discharge test: energised walkthrough -> 90-min timer -> review/confirm. */
 export function DischargeTestFlow({
   jobId,
+  testType,
   phase,
   runningSince,
   elapsedSeconds,
@@ -14,6 +15,7 @@ export function DischargeTestFlow({
   results,
 }: {
   jobId: string;
+  testType: TestType | null;
   phase: DischargePhase;
   runningSince: Date | null;
   elapsedSeconds: number;
@@ -34,5 +36,5 @@ export function DischargeTestFlow({
       />
     );
   }
-  return <DischargeReview jobId={jobId} fittings={fittings} results={results} done={phase === "DONE"} />;
+  return <DischargeReview jobId={jobId} testType={testType} fittings={fittings} results={results} done={phase === "DONE"} />;
 }

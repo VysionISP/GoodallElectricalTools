@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import type { Fitting, FittingModel, FittingTestResult } from "@/generated/prisma/client";
+import type { Fitting, FittingModel, FittingTestResult, TestType } from "@/generated/prisma/client";
 import { confirmDischargeReviewAction, reopenDischargeReviewAction } from "@/lib/actions/discharge-test";
 import { Badge, Button, Card } from "@/components/ui";
 import { TestChecklist } from "./test-checklist";
@@ -10,11 +10,13 @@ type FittingWithModel = Fitting & { model: FittingModel | null };
 
 export function DischargeReview({
   jobId,
+  testType,
   fittings,
   results,
   done,
 }: {
   jobId: string;
+  testType: TestType | null;
   fittings: FittingWithModel[];
   results: FittingTestResult[];
   done: boolean;
@@ -99,7 +101,7 @@ export function DischargeReview({
       <p className="mb-2 text-xs text-slate-500">
         Tap any fitting below to adjust its result, add repair notes, or attach before/after photos.
       </p>
-      <TestChecklist jobId={jobId} fittings={fittings} results={results} />
+      <TestChecklist jobId={jobId} testType={testType} fittings={fittings} results={results} />
     </div>
   );
 }

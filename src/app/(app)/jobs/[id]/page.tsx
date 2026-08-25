@@ -88,6 +88,7 @@ export default async function JobDetailPage({
       ) : (
         <DischargeTestFlow
           jobId={job.id}
+          testType={job.testType}
           phase={job.dischargePhase}
           runningSince={job.dischargeRunningSince}
           elapsedSeconds={job.dischargeElapsedSeconds}

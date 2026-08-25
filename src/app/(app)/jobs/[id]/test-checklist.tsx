@@ -2,7 +2,7 @@
 
 import { useActionState, useState, type ReactNode } from "react";
 import Image from "next/image";
-import type { Fitting, FittingTestResult, FittingType } from "@/generated/prisma/client";
+import type { Fitting, FittingTestResult, FittingType, TestType } from "@/generated/prisma/client";
 import type { ActionResult } from "@/lib/actions/auth";
 import { saveFittingTestResultAction } from "@/lib/actions/jobs";
 import { Badge, Button, Card, ErrorText, Input, Label, Select, Textarea } from "@/components/ui";
@@ -14,8 +14,11 @@ const TYPE_LABELS: Record<FittingType, string> = {
   COMBINED: "Combined exit/EL",
 };
 
-const CHECKLIST_ITEMS: { key: string; label: string }[] = [
-  { key: "durationTestPass", label: "Duration / discharge test (90 min)" },
+// AS/NZS 2293.2: the 6-monthly routine is the discharge/duration test; the
+// detailed condition items belong to the annual inspection. The checklist
+// shown per fitting follows the job's test type.
+const DURATION_ITEM = { key: "durationTestPass", label: "Duration / discharge test (90 min)" };
+const ANNUAL_ITEMS: { key: string; label: string }[] = [
   { key: "illuminationPass", label: "Illumination level adequate" },
   { key: "batteryConditionPass", label: "Battery condition" },
   { key: "lampConditionPass", label: "Lamp / LED condition" },
@@ -23,12 +26,18 @@ const CHECKLIST_ITEMS: { key: string; label: string }[] = [
   { key: "signageVisiblePass", label: "Signage clean & visible" },
 ];
 
+function checklistItemsFor(testType: TestType | null) {
+  return testType === "ANNUAL_FULL_TEST" ? [DURATION_ITEM, ...ANNUAL_ITEMS] : [DURATION_ITEM];
+}
+
 export function TestChecklist({
   jobId,
+  testType,
   fittings,
   results,
 }: {
   jobId: string;
+  testType: TestType | null;
   fittings: Fitting[];
   results: FittingTestResult[];
 }) {
@@ -66,6 +75,7 @@ export function TestChecklist({
               <FittingTestForm
                 key={f.id}
                 jobId={jobId}
+                testType={testType}
                 fitting={f}
                 result={resultByFitting.get(f.id)}
                 onDone={() => setOpenId(null)}
@@ -133,11 +143,13 @@ function ResultBadge({ result }: { result?: FittingTestResult }) {
 
 function FittingTestForm({
   jobId,
+  testType,
   fitting,
   result,
   onDone,
 }: {
   jobId: string;
+  testType: TestType | null;
   fitting: Fitting;
   result?: FittingTestResult;
   onDone: () => void;
@@ -174,7 +186,7 @@ function FittingTestForm({
         </div>
 
         <div className="space-y-2">
-          {CHECKLIST_ITEMS.map((item) => (
+          {checklistItemsFor(testType).map((item) => (
             <ChecklistRow
               key={item.key}
               name={item.key}
