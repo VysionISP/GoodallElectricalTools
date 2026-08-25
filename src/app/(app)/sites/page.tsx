@@ -32,7 +32,7 @@ export default async function SitesPage() {
         <Card className="p-10 text-center">
           <BuildingIcon className="mx-auto h-8 w-8 text-slate-300" />
           <p className="mt-3 text-sm text-slate-500">No sites yet.</p>
-          <Link href="/sites/new" className="mt-3 inline-block text-sm font-medium text-blue-700 hover:underline">
+          <Link href="/sites/new" className="mt-3 inline-block text-sm font-medium text-brand-700 hover:underline">
             Add your first site
           </Link>
         </Card>

@@ -32,7 +32,7 @@ export default async function CustomersPage() {
         <Card className="p-10 text-center">
           <UsersIcon className="mx-auto h-8 w-8 text-slate-300" />
           <p className="mt-3 text-sm text-slate-500">No customers yet.</p>
-          <Link href="/customers/new" className="mt-3 inline-block text-sm font-medium text-blue-700 hover:underline">
+          <Link href="/customers/new" className="mt-3 inline-block text-sm font-medium text-brand-700 hover:underline">
             Add your first customer
           </Link>
         </Card>

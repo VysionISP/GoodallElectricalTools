@@ -5,7 +5,8 @@ import { requireSession } from "@/lib/session";
 import { PageHeader, Card, Button, Badge } from "@/components/ui";
 import { ClipboardIcon, FileIcon, PlusIcon } from "@/components/icons";
 import { formatDate } from "@/lib/format";
-import { FittingsManager } from "./fittings-manager";
+import { RegisterTabs } from "./register-tabs";
+import { jobTitle } from "@/lib/job-labels";
 
 export default async function SiteDetailPage({
   params,
@@ -20,6 +21,7 @@ export default async function SiteDetailPage({
     include: {
       customer: true,
       fittings: { orderBy: { reference: "asc" } },
+      rcdUnits: { orderBy: { reference: "asc" } },
       jobs: { orderBy: { createdAt: "desc" }, take: 8, include: { technician: true } },
     },
   });
@@ -32,7 +34,7 @@ export default async function SiteDetailPage({
         title={site.name}
         description={
           <>
-            <Link href={`/customers/${site.customerId}`} className="text-blue-700 hover:underline">
+            <Link href={`/customers/${site.customerId}`} className="text-brand-700 hover:underline">
               {site.customer.name}
             </Link>
             {site.address ? ` · ${site.address}` : ""}
@@ -65,12 +67,12 @@ export default async function SiteDetailPage({
         </a>
       )}
 
-      <FittingsManager siteId={site.id} fittings={site.fittings} />
+      <RegisterTabs siteId={site.id} fittings={site.fittings} rcdUnits={site.rcdUnits} />
 
       <div>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-700">Test jobs</h2>
-          <Link href="/jobs" className="text-sm font-medium text-blue-700 hover:underline">
+          <Link href="/jobs" className="text-sm font-medium text-brand-700 hover:underline">
             View all
           </Link>
         </div>
@@ -89,9 +91,7 @@ export default async function SiteDetailPage({
                     className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50"
                   >
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-900">
-                        {job.testType === "ANNUAL_FULL_TEST" ? "Annual full test" : "6-monthly discharge test"}
-                      </p>
+                      <p className="text-sm font-medium text-slate-900">{jobTitle(job)}</p>
                       <p className="text-xs text-slate-500">
                         {job.technician ? `${job.technician.name} · ` : ""}
                         {job.scheduledDate ? formatDate(job.scheduledDate) : formatDate(job.createdAt)}

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
-import { PageHeader, Card, Badge } from "@/components/ui";
+import { Card, Badge } from "@/components/ui";
 import { BusinessProfileForm } from "./business-profile-form";
 import { StaffForm, RemoveStaffButton } from "./staff-form";
 import { PasswordForm } from "./password-form";
@@ -23,11 +23,6 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader
-        title="Settings"
-        description="Business branding, contact details and staff accounts."
-      />
-
       {isAdmin && (
         <section>
           <h2 className="text-sm font-semibold text-slate-700 mb-3">Business profile</h2>

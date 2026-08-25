@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { SiteFittingsReportDocument } from "@/lib/pdf/site-fittings-report";
+import { SiteRcdReportDocument } from "@/lib/pdf/site-rcd-report";
 import { resolveTemplate } from "@/lib/templates";
 
 export async function GET(
@@ -20,7 +20,7 @@ export async function GET(
     include: {
       business: true,
       customer: true,
-      fittings: { where: { active: true }, orderBy: { reference: "asc" } },
+      rcdUnits: { where: { active: true }, orderBy: { reference: "asc" } },
     },
   });
 
@@ -28,19 +28,19 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const template = await resolveTemplate(site.businessId, site.customerId, "EXIT_EMERGENCY_LIGHTING");
+  const template = await resolveTemplate(site.businessId, site.customerId, "RCD_TESTING");
 
   const buffer = await renderToBuffer(
-    SiteFittingsReportDocument({
+    SiteRcdReportDocument({
       business: site.business,
       customer: site.customer,
       site,
-      fittings: site.fittings,
+      rcdUnits: site.rcdUnits,
       template,
     })
   );
 
-  const filename = `${site.name.replace(/[^a-z0-9]+/gi, "-")}-fitting-register.pdf`;
+  const filename = `${site.name.replace(/[^a-z0-9]+/gi, "-")}-rcd-register.pdf`;
 
   return new NextResponse(new Uint8Array(buffer), {
     headers: {

@@ -5,7 +5,11 @@ import { requireSession } from "@/lib/session";
 import { PageHeader, Card, Button } from "@/components/ui";
 import { BuildingIcon, PlusIcon } from "@/components/icons";
 import { CustomerForm } from "../customer-form";
+import { CustomerTemplatePicker } from "./customer-template-picker";
 import { updateCustomerAction, deleteCustomerAction } from "@/lib/actions/customers";
+import type { ToolType } from "@/generated/prisma/client";
+
+const TOOLS: ToolType[] = ["EXIT_EMERGENCY_LIGHTING", "RCD_TESTING"];
 
 export default async function CustomerDetailPage({
   params,
@@ -15,10 +19,16 @@ export default async function CustomerDetailPage({
   const { id } = await params;
   const session = await requireSession();
 
-  const customer = await prisma.customer.findUnique({
-    where: { id },
-    include: { sites: { orderBy: { name: "asc" } } },
-  });
+  const [customer, templates] = await Promise.all([
+    prisma.customer.findUnique({
+      where: { id },
+      include: { sites: { orderBy: { name: "asc" } }, templateAssignments: true },
+    }),
+    prisma.reportTemplate.findMany({
+      where: { businessId: session.user.businessId },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   if (!customer || customer.businessId !== session.user.businessId) notFound();
 
@@ -75,6 +85,28 @@ export default async function CustomerDetailPage({
             )}
           </Card>
         </div>
+      </div>
+
+      <div>
+        <h2 className="mb-3 text-sm font-semibold text-slate-700">Report templates</h2>
+        <p className="mb-3 text-xs text-slate-500">
+          Choose which template this customer&apos;s reports use for each tool. Manage templates
+          under Settings → Report templates.
+        </p>
+        <Card className="divide-y divide-slate-100">
+          {TOOLS.map((toolType) => (
+            <div key={toolType} className="p-4">
+              <CustomerTemplatePicker
+                customerId={customer.id}
+                toolType={toolType}
+                templates={templates.filter((t) => t.toolType === toolType)}
+                currentTemplateId={
+                  customer.templateAssignments.find((a) => a.toolType === toolType)?.templateId
+                }
+              />
+            </div>
+          ))}
+        </Card>
       </div>
     </div>
   );

@@ -91,7 +91,7 @@ function FittingRow({
 }) {
   return (
     <Card
-      className="flex cursor-pointer items-center gap-3 p-3 hover:border-blue-300"
+      className="flex cursor-pointer items-center gap-3 p-3 hover:border-brand-300"
       onClick={onOpen}
     >
       {fitting.photoPath ? (
@@ -144,7 +144,7 @@ function FittingTestForm({
   );
 
   return (
-    <Card className="p-4 border-blue-200">
+    <Card className="p-4 border-brand-200">
       <div className="mb-3 flex items-center gap-2">
         <p className="text-sm font-semibold text-slate-900">{fitting.reference}</p>
         <span className="text-xs text-slate-400">{fitting.location}</span>

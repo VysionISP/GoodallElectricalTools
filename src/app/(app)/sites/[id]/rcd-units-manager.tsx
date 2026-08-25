@@ -2,45 +2,45 @@
 
 import { useActionState, useState } from "react";
 import Image from "next/image";
-import type { Fitting, FittingType } from "@/generated/prisma/client";
+import type { RcdUnit, RcdType } from "@/generated/prisma/client";
 import type { ActionResult } from "@/lib/actions/auth";
 import {
-  createFittingAction,
-  deleteFittingAction,
-  setFittingActiveAction,
-  updateFittingAction,
-} from "@/lib/actions/fittings";
+  createRcdUnitAction,
+  deleteRcdUnitAction,
+  setRcdUnitActiveAction,
+  updateRcdUnitAction,
+} from "@/lib/actions/rcd-units";
 import { Badge, Button, Card, ErrorText, Input, Label, Select } from "@/components/ui";
 import { CameraIcon, DownloadIcon, PlusIcon, TrashIcon } from "@/components/icons";
 
-const TYPE_LABELS: Record<FittingType, string> = {
-  EXIT_SIGN: "Exit sign",
-  EMERGENCY_LIGHT: "Emergency light",
-  COMBINED: "Combined exit/EL",
+const TYPE_LABELS: Record<RcdType, string> = {
+  TYPE_AC: "Type AC",
+  TYPE_A: "Type A",
+  TYPE_B: "Type B",
 };
 
-export function FittingsManager({ siteId, fittings }: { siteId: string; fittings: Fitting[] }) {
+export function RcdUnitsManager({ siteId, rcdUnits }: { siteId: string; rcdUnits: RcdUnit[] }) {
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const active = fittings.filter((f) => f.active);
-  const inactive = fittings.filter((f) => !f.active);
+  const active = rcdUnits.filter((u) => u.active);
+  const inactive = rcdUnits.filter((u) => !u.active);
 
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-700">
-          Fittings <span className="text-slate-400 font-normal">({active.length})</span>
+          RCDs / safety switches <span className="text-slate-400 font-normal">({active.length})</span>
         </h2>
         <div className="flex items-center gap-2">
           <a
-            href={`/api/sites/${siteId}/fittings/export`}
+            href={`/api/sites/${siteId}/rcd-units/export`}
             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
           >
             <DownloadIcon className="h-4 w-4" />
             CSV
           </a>
           <a
-            href={`/api/sites/${siteId}/fittings/report`}
+            href={`/api/sites/${siteId}/rcd-units/report`}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
@@ -50,41 +50,29 @@ export function FittingsManager({ siteId, fittings }: { siteId: string; fittings
           </a>
           <Button variant="secondary" onClick={() => setAdding((v) => !v)}>
             <PlusIcon className="h-4 w-4" />
-            {adding ? "Cancel" : "Add fitting"}
+            {adding ? "Cancel" : "Add RCD"}
           </Button>
         </div>
       </div>
 
       {adding && (
         <div className="mb-4">
-          <FittingForm
-            siteId={siteId}
-            onDone={() => setAdding(false)}
-          />
+          <RcdUnitForm siteId={siteId} onDone={() => setAdding(false)} />
         </div>
       )}
 
       {active.length === 0 && !adding ? (
         <Card className="p-8 text-center text-sm text-slate-500">
-          No fittings recorded yet. Add each exit sign / emergency light so it can be tracked across
-          every test visit.
+          No RCDs recorded yet. Add each safety switch / RCD so it can be tracked across every test
+          visit.
         </Card>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
-          {active.map((f) =>
-            editingId === f.id ? (
-              <FittingForm
-                key={f.id}
-                siteId={siteId}
-                fitting={f}
-                onDone={() => setEditingId(null)}
-              />
+          {active.map((u) =>
+            editingId === u.id ? (
+              <RcdUnitForm key={u.id} siteId={siteId} rcdUnit={u} onDone={() => setEditingId(null)} />
             ) : (
-              <FittingCard
-                key={f.id}
-                fitting={f}
-                onEdit={() => setEditingId(f.id)}
-              />
+              <RcdUnitCard key={u.id} rcdUnit={u} onEdit={() => setEditingId(u.id)} />
             )
           )}
         </div>
@@ -93,11 +81,11 @@ export function FittingsManager({ siteId, fittings }: { siteId: string; fittings
       {inactive.length > 0 && (
         <details className="mt-5">
           <summary className="cursor-pointer text-xs font-medium text-slate-400">
-            {inactive.length} decommissioned fitting{inactive.length === 1 ? "" : "s"}
+            {inactive.length} decommissioned RCD{inactive.length === 1 ? "" : "s"}
           </summary>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {inactive.map((f) => (
-              <FittingCard key={f.id} fitting={f} decommissioned />
+            {inactive.map((u) => (
+              <RcdUnitCard key={u.id} rcdUnit={u} decommissioned />
             ))}
           </div>
         </details>
@@ -106,20 +94,20 @@ export function FittingsManager({ siteId, fittings }: { siteId: string; fittings
   );
 }
 
-function FittingCard({
-  fitting,
+function RcdUnitCard({
+  rcdUnit,
   onEdit,
   decommissioned,
 }: {
-  fitting: Fitting;
+  rcdUnit: RcdUnit;
   onEdit?: () => void;
   decommissioned?: boolean;
 }) {
   return (
     <Card className="p-3 flex gap-3">
-      {fitting.photoPath ? (
+      {rcdUnit.photoPath ? (
         <Image
-          src={fitting.photoPath}
+          src={rcdUnit.photoPath}
           alt=""
           width={72}
           height={72}
@@ -132,10 +120,12 @@ function FittingCard({
       )}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="truncate text-sm font-semibold text-slate-900">{fitting.reference}</p>
-          <Badge color="blue">{TYPE_LABELS[fitting.fittingType]}</Badge>
+          <p className="truncate text-sm font-semibold text-slate-900">{rcdUnit.reference}</p>
+          <Badge color="blue">
+            {TYPE_LABELS[rcdUnit.rcdType]} · {rcdUnit.ratedCurrentMa}mA
+          </Badge>
         </div>
-        <p className="mt-0.5 text-xs text-slate-500">{fitting.location}</p>
+        <p className="mt-0.5 text-xs text-slate-500">{rcdUnit.location}</p>
         <div className="mt-2 flex items-center gap-3">
           {!decommissioned && onEdit && (
             <button onClick={onEdit} className="text-xs font-medium text-brand-700 hover:underline">
@@ -144,14 +134,14 @@ function FittingCard({
           )}
           {!decommissioned ? (
             <button
-              onClick={() => setFittingActiveAction(fitting.id, false)}
+              onClick={() => setRcdUnitActiveAction(rcdUnit.id, false)}
               className="text-xs font-medium text-slate-400 hover:text-red-600"
             >
               Decommission
             </button>
           ) : (
             <button
-              onClick={() => setFittingActiveAction(fitting.id, true)}
+              onClick={() => setRcdUnitActiveAction(rcdUnit.id, true)}
               className="text-xs font-medium text-brand-700 hover:underline"
             >
               Reactivate
@@ -159,8 +149,8 @@ function FittingCard({
           )}
           <button
             onClick={() => {
-              if (confirm(`Delete fitting ${fitting.reference}? This removes its full test history.`)) {
-                deleteFittingAction(fitting.id);
+              if (confirm(`Delete RCD ${rcdUnit.reference}? This removes its full test history.`)) {
+                deleteRcdUnitAction(rcdUnit.id);
               }
             }}
             className="text-xs font-medium text-slate-400 hover:text-red-600"
@@ -173,22 +163,19 @@ function FittingCard({
   );
 }
 
-function FittingForm({
+function RcdUnitForm({
   siteId,
-  fitting,
+  rcdUnit,
   onDone,
 }: {
   siteId: string;
-  fitting?: Fitting;
+  rcdUnit?: RcdUnit;
   onDone: () => void;
 }) {
-  const boundAction = fitting
-    ? updateFittingAction.bind(null, fitting.id)
-    : createFittingAction.bind(null, siteId);
-  const [state, formAction, pending] = useActionState<ActionResult, FormData>(
-    boundAction,
-    undefined
-  );
+  const boundAction = rcdUnit
+    ? updateRcdUnitAction.bind(null, rcdUnit.id)
+    : createRcdUnitAction.bind(null, siteId);
+  const [state, formAction, pending] = useActionState<ActionResult, FormData>(boundAction, undefined);
 
   return (
     <Card className="p-4 sm:col-span-2">
@@ -199,24 +186,36 @@ function FittingForm({
         }}
         className="space-y-3"
       >
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-3">
           <div>
             <Label htmlFor="reference">Reference / ID</Label>
             <Input
               id="reference"
               name="reference"
-              placeholder="e.g. EL-01"
-              defaultValue={fitting?.reference}
+              placeholder="e.g. SB1-RCD2"
+              defaultValue={rcdUnit?.reference}
               required
             />
           </div>
           <div>
-            <Label htmlFor="fittingType">Type</Label>
-            <Select id="fittingType" name="fittingType" defaultValue={fitting?.fittingType ?? "EMERGENCY_LIGHT"}>
-              <option value="EXIT_SIGN">Exit sign</option>
-              <option value="EMERGENCY_LIGHT">Emergency light</option>
-              <option value="COMBINED">Combined exit/EL</option>
+            <Label htmlFor="rcdType">Type</Label>
+            <Select id="rcdType" name="rcdType" defaultValue={rcdUnit?.rcdType ?? "TYPE_A"}>
+              <option value="TYPE_AC">Type AC</option>
+              <option value="TYPE_A">Type A</option>
+              <option value="TYPE_B">Type B</option>
             </Select>
+          </div>
+          <div>
+            <Label htmlFor="ratedCurrentMa">Rated current (mA)</Label>
+            <Input
+              id="ratedCurrentMa"
+              name="ratedCurrentMa"
+              type="number"
+              min={1}
+              step={1}
+              defaultValue={rcdUnit?.ratedCurrentMa ?? 30}
+              required
+            />
           </div>
         </div>
         <div>
@@ -224,19 +223,19 @@ function FittingForm({
           <Input
             id="location"
             name="location"
-            placeholder="e.g. Level 1 corridor near stairwell"
-            defaultValue={fitting?.location}
+            placeholder="e.g. Main switchboard, kitchen circuit"
+            defaultValue={rcdUnit?.location}
             required
           />
         </div>
         <div>
-          <Label htmlFor="photo">Reference photo {fitting?.photoPath ? "(replace existing)" : ""}</Label>
+          <Label htmlFor="photo">Reference photo {rcdUnit?.photoPath ? "(replace existing)" : ""}</Label>
           <Input id="photo" name="photo" type="file" accept="image/*" capture="environment" />
         </div>
         <ErrorText>{state?.error}</ErrorText>
         <div className="flex gap-2">
           <Button type="submit" disabled={pending}>
-            {pending ? "Saving..." : fitting ? "Save fitting" : "Add fitting"}
+            {pending ? "Saving..." : rcdUnit ? "Save RCD" : "Add RCD"}
           </Button>
           <Button type="button" variant="ghost" onClick={onDone}>
             Cancel

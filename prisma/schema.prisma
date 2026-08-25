@@ -16,15 +16,36 @@ enum Role {
   TECHNICIAN
 }
 
+// Which testing tool a job/register/template belongs to. Add new values
+// here as new tools are introduced.
+enum ToolType {
+  EXIT_EMERGENCY_LIGHTING
+  RCD_TESTING
+}
+
 enum FittingType {
   EXIT_SIGN
   EMERGENCY_LIGHT
   COMBINED
 }
 
+// Exit & Emergency Lighting job cadence (AS/NZS 2293).
 enum TestType {
   SIX_MONTHLY_DISCHARGE
   ANNUAL_FULL_TEST
+}
+
+// RCD/safety switch job cadence — interval depends on the site's risk
+// classification.
+enum RcdTestFrequency {
+  SIX_MONTHLY
+  TWELVE_MONTHLY
+}
+
+enum RcdType {
+  TYPE_AC
+  TYPE_A
+  TYPE_B
 }
 
 enum JobStatus {
@@ -33,7 +54,8 @@ enum JobStatus {
   COMPLETED
 }
 
-enum FittingResult {
+// Shared pass/fail/needs-repair outcome used by every tool's test result.
+enum ResultStatus {
   PASS
   FAIL
   NEEDS_REPAIR
@@ -56,6 +78,7 @@ model Business {
   customers Customer[]
   sites     Site[]
   jobs      Job[]
+  templates ReportTemplate[]
 }
 
 model User {
@@ -86,12 +109,13 @@ model Customer {
   notes        String?
   createdAt    DateTime @default(now())
 
-  sites Site[]
+  sites               Site[]
+  templateAssignments CustomerReportTemplate[]
 
   @@index([businessId])
 }
 
-// A physical site/premises belonging to a customer, containing fittings to be tested.
+// A physical site/premises belonging to a customer, containing fittings/RCDs to be tested.
 model Site {
   id         String   @id @default(cuid())
   businessId String
@@ -106,6 +130,7 @@ model Site {
   createdAt  DateTime @default(now())
 
   fittings Fitting[]
+  rcdUnits RcdUnit[]
   jobs     Job[]
 
   @@index([businessId])
@@ -131,7 +156,27 @@ model Fitting {
   @@index([siteId])
 }
 
-// A single testing visit/job at a site.
+// A persistent record of a single RCD (safety switch) at a site, usually at
+// a switchboard. Test results accumulate against it across job visits.
+model RcdUnit {
+  id     String @id @default(cuid())
+  siteId String
+  site   Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  reference       String // short ID/label, e.g. "SB1-RCD2"
+  location        String // description, e.g. "Main switchboard, kitchen circuit"
+  rcdType         RcdType @default(TYPE_A)
+  ratedCurrentMa  Int     @default(30)
+  photoPath       String? // reference photo showing the RCD's location
+  active          Boolean  @default(true) // false = decommissioned/removed
+  createdAt       DateTime @default(now())
+
+  testResults RcdTestResult[]
+
+  @@index([siteId])
+}
+
+// A single testing visit/job at a site, for one tool.
 model Job {
   id         String   @id @default(cuid())
   businessId String
@@ -142,14 +187,17 @@ model Job {
   technicianId String?
   technician   User?   @relation("TechnicianJobs", fields: [technicianId], references: [id], onDelete: SetNull)
 
-  testType      TestType  @default(SIX_MONTHLY_DISCHARGE)
-  status        JobStatus @default(SCHEDULED)
-  scheduledDate DateTime?
-  completedDate DateTime?
-  notes         String?
-  createdAt     DateTime  @default(now())
+  toolType         ToolType          @default(EXIT_EMERGENCY_LIGHTING)
+  testType         TestType? // set when toolType = EXIT_EMERGENCY_LIGHTING
+  rcdTestFrequency RcdTestFrequency? // set when toolType = RCD_TESTING
+  status           JobStatus         @default(SCHEDULED)
+  scheduledDate    DateTime?
+  completedDate    DateTime?
+  notes            String?
+  createdAt        DateTime          @default(now())
 
-  testResults FittingTestResult[]
+  fittingTestResults FittingTestResult[]
+  rcdTestResults     RcdTestResult[]
 
   @@index([businessId])
   @@index([siteId])
@@ -173,7 +221,7 @@ model FittingTestResult {
   physicalDamagePass    Boolean?
   signageVisiblePass    Boolean?
 
-  overallResult FittingResult @default(PASS)
+  overallResult ResultStatus @default(PASS)
   comments      String?
   repairNotes   String?
 
@@ -183,4 +231,79 @@ model FittingTestResult {
   @@index([jobId])
   @@index([fittingId])
   @@unique([jobId, fittingId])
+}
+
+// The result of testing one RCD during one job visit.
+model RcdTestResult {
+  id        String  @id @default(cuid())
+  jobId     String
+  job       Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  rcdUnitId String
+  rcdUnit   RcdUnit @relation(fields: [rcdUnitId], references: [id], onDelete: Cascade)
+
+  beforePhotoPath String?
+  afterPhotoPath  String?
+
+  testButtonPass  Boolean? // push-button (T) test trips the RCD
+  tripTimeRatedMs Int? // trip time at 1x rated residual current, milliseconds
+  tripTime5xMs    Int? // trip time at 5x rated residual current, milliseconds
+
+  overallResult ResultStatus @default(PASS)
+  comments      String?
+  repairNotes   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([jobId])
+  @@index([rcdUnitId])
+  @@unique([jobId, rcdUnitId])
+}
+
+// A configurable PDF report layout for one tool, owned by a business.
+// Reports resolve to a customer's assigned template for that tool, falling
+// back to the business's default template, falling back to a built-in look.
+model ReportTemplate {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  toolType  ToolType
+  name      String
+  isDefault Boolean  @default(false)
+
+  // Layout/style
+  accentColor   String  @default("#1d4ed8")
+  showStatCards Boolean @default(true)
+  showPhotos    Boolean @default(true)
+  // Ordered list of column keys to show in the results table — the set of
+  // valid keys is tool-specific and validated in application code.
+  tableColumns  Json
+
+  // Custom text/branding blocks
+  headerText     String?
+  footerText     String?
+  disclaimerText String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customerAssignments CustomerReportTemplate[]
+
+  @@index([businessId])
+  @@index([businessId, toolType])
+}
+
+// Assigns a specific template to a customer, per tool. Absent = use the
+// business's default template for that tool.
+model CustomerReportTemplate {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  toolType   ToolType
+  templateId String
+  template   ReportTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, toolType])
+  @@index([templateId])
 }

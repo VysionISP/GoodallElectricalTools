@@ -3,7 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { ClipboardIcon } from "@/components/icons";
+import { ToolBadge } from "@/components/tool-badge";
 import { formatDate } from "@/lib/format";
+import { jobTitle } from "@/lib/job-labels";
 
 export default async function JobsPage() {
   const session = await requireSession();
@@ -24,7 +26,7 @@ export default async function JobsPage() {
           <p className="mt-3 text-sm text-slate-500">
             No jobs yet. Open a site and click &ldquo;New test job&rdquo; to get started.
           </p>
-          <Link href="/sites" className="mt-3 inline-block text-sm font-medium text-blue-700 hover:underline">
+          <Link href="/sites" className="mt-3 inline-block text-sm font-medium text-brand-700 hover:underline">
             Go to sites
           </Link>
         </Card>
@@ -35,14 +37,15 @@ export default async function JobsPage() {
               <li key={job.id}>
                 <Link
                   href={`/jobs/${job.id}`}
-                  className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50"
                 >
-                  <div className="min-w-0">
+                  <ToolBadge toolType={job.toolType} />
+                  <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-slate-900">
                       {job.site.name} — {job.site.customer.name}
                     </p>
                     <p className="truncate text-xs text-slate-500">
-                      {job.testType === "ANNUAL_FULL_TEST" ? "Annual full test" : "6-monthly discharge test"}
+                      {jobTitle(job)}
                       {job.technician ? ` · ${job.technician.name}` : ""}
                       {job.scheduledDate ? ` · ${formatDate(job.scheduledDate)}` : ""}
                     </p>

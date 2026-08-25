@@ -35,7 +35,7 @@ export default function LoginPage() {
       </form>
       <p className="mt-6 text-center text-sm text-slate-500">
         New business?{" "}
-        <Link href="/signup" className="font-medium text-blue-700 hover:underline">
+        <Link href="/signup" className="font-medium text-brand-700 hover:underline">
           Create an account
         </Link>
       </p>

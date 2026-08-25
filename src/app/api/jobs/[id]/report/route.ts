@@ -3,6 +3,8 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { JobReportDocument } from "@/lib/pdf/job-report";
+import { RcdJobReportDocument } from "@/lib/pdf/rcd-job-report";
+import { resolveTemplate } from "@/lib/templates";
 
 export async function GET(
   _req: Request,
@@ -23,9 +25,11 @@ export async function GET(
         include: {
           customer: true,
           fittings: { where: { active: true }, orderBy: { reference: "asc" } },
+          rcdUnits: { where: { active: true }, orderBy: { reference: "asc" } },
         },
       },
-      testResults: true,
+      fittingTestResults: true,
+      rcdTestResults: true,
     },
   });
 
@@ -33,24 +37,46 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const resultByFitting = new Map(job.testResults.map((r) => [r.fittingId, r]));
-  const fittings = job.site.fittings.map((f) => ({
-    ...f,
-    result: resultByFitting.get(f.id),
-  }));
+  const template = await resolveTemplate(job.businessId, job.site.customerId, job.toolType);
 
-  const buffer = await renderToBuffer(
-    JobReportDocument({
-      business: job.business,
-      customer: job.site.customer,
-      site: job.site,
-      job,
-      technician: job.technician,
-      fittings,
-    })
-  );
+  let buffer: Buffer;
+  let filenameSuffix: string;
 
-  const filename = `${job.site.name.replace(/[^a-z0-9]+/gi, "-")}-emergency-lighting-report.pdf`;
+  if (job.toolType === "RCD_TESTING") {
+    const resultByUnit = new Map(job.rcdTestResults.map((r) => [r.rcdUnitId, r]));
+    const rcdUnits = job.site.rcdUnits.map((u) => ({ ...u, result: resultByUnit.get(u.id) }));
+
+    buffer = await renderToBuffer(
+      RcdJobReportDocument({
+        business: job.business,
+        customer: job.site.customer,
+        site: job.site,
+        job,
+        technician: job.technician,
+        rcdUnits,
+        template,
+      })
+    );
+    filenameSuffix = "rcd-report";
+  } else {
+    const resultByFitting = new Map(job.fittingTestResults.map((r) => [r.fittingId, r]));
+    const fittings = job.site.fittings.map((f) => ({ ...f, result: resultByFitting.get(f.id) }));
+
+    buffer = await renderToBuffer(
+      JobReportDocument({
+        business: job.business,
+        customer: job.site.customer,
+        site: job.site,
+        job,
+        technician: job.technician,
+        fittings,
+        template,
+      })
+    );
+    filenameSuffix = "emergency-lighting-report";
+  }
+
+  const filename = `${job.site.name.replace(/[^a-z0-9]+/gi, "-")}-${filenameSuffix}.pdf`;
 
   return new NextResponse(new Uint8Array(buffer), {
     headers: {

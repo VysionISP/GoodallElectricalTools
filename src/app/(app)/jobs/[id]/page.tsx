@@ -4,8 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { PageHeader, Card, Badge, Button } from "@/components/ui";
 import { DownloadIcon } from "@/components/icons";
+import { ToolBadge } from "@/components/tool-badge";
 import { formatDate, formatDateTime } from "@/lib/format";
+import { jobTitle } from "@/lib/job-labels";
 import { TestChecklist } from "./test-checklist";
+import { RcdTestChecklist } from "./rcd-test-checklist";
 import { JobActions } from "./job-actions";
 
 export default async function JobDetailPage({
@@ -19,9 +22,16 @@ export default async function JobDetailPage({
   const job = await prisma.job.findUnique({
     where: { id },
     include: {
-      site: { include: { customer: true, fittings: { where: { active: true }, orderBy: { reference: "asc" } } } },
+      site: {
+        include: {
+          customer: true,
+          fittings: { where: { active: true }, orderBy: { reference: "asc" } },
+          rcdUnits: { where: { active: true }, orderBy: { reference: "asc" } },
+        },
+      },
       technician: true,
-      testResults: true,
+      fittingTestResults: true,
+      rcdTestResults: true,
     },
   });
 
@@ -30,9 +40,9 @@ export default async function JobDetailPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`${job.site.name} — ${job.testType === "ANNUAL_FULL_TEST" ? "Annual full test" : "6-monthly discharge test"}`}
+        title={`${job.site.name} — ${jobTitle(job)}`}
         description={
-          <Link href={`/sites/${job.siteId}`} className="text-blue-700 hover:underline">
+          <Link href={`/sites/${job.siteId}`} className="text-brand-700 hover:underline">
             {job.site.customer.name} · {job.site.name}
           </Link>
         }
@@ -47,6 +57,7 @@ export default async function JobDetailPage({
       />
 
       <Card className="p-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+        <ToolBadge toolType={job.toolType} />
         <StatusBadge status={job.status} />
         {job.technician && (
           <span className="text-slate-500">
@@ -68,7 +79,11 @@ export default async function JobDetailPage({
 
       <JobActions jobId={job.id} status={job.status} />
 
-      <TestChecklist jobId={job.id} fittings={job.site.fittings} results={job.testResults} />
+      {job.toolType === "RCD_TESTING" ? (
+        <RcdTestChecklist jobId={job.id} rcdUnits={job.site.rcdUnits} results={job.rcdTestResults} />
+      ) : (
+        <TestChecklist jobId={job.id} fittings={job.site.fittings} results={job.fittingTestResults} />
+      )}
     </div>
   );
 }

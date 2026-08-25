@@ -27,8 +27,8 @@ export function SidebarLinks({ items }: { items: NavItem[] }) {
             href={item.href}
             className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               active
-                ? "bg-blue-50 text-blue-700"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                ? "bg-brand-800 text-white"
+                : "text-brand-100/70 hover:bg-white/5 hover:text-white"
             }`}
           >
             <span className="h-5 w-5">{item.icon}</span>
@@ -51,7 +51,7 @@ export function BottomNavLinks({ items }: { items: NavItem[] }) {
             key={item.href}
             href={item.href}
             className={`flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${
-              active ? "text-blue-700" : "text-slate-500"
+              active ? "text-brand-700" : "text-slate-500"
             }`}
           >
             <span className="h-5 w-5">{item.icon}</span>

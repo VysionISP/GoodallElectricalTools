@@ -63,7 +63,7 @@ export function SiteForm({
               href={site.mapPdfPath}
               target="_blank"
               rel="noreferrer"
-              className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 hover:underline"
+              className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-brand-700 hover:underline"
             >
               <FileIcon className="h-4 w-4" />
               View current plan

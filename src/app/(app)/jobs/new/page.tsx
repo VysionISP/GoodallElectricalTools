@@ -2,14 +2,15 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/ui";
 import { JobForm } from "./job-form";
+import type { ToolType } from "@/generated/prisma/client";
 
 export default async function NewJobPage({
   searchParams,
 }: {
-  searchParams: Promise<{ siteId?: string }>;
+  searchParams: Promise<{ siteId?: string; toolType?: string }>;
 }) {
   const session = await requireSession();
-  const { siteId } = await searchParams;
+  const { siteId, toolType } = await searchParams;
 
   const [sites, staff] = await Promise.all([
     prisma.site.findMany({
@@ -23,6 +24,9 @@ export default async function NewJobPage({
     }),
   ]);
 
+  const defaultToolType: ToolType | undefined =
+    toolType === "RCD_TESTING" || toolType === "EXIT_EMERGENCY_LIGHTING" ? toolType : undefined;
+
   return (
     <div>
       <PageHeader title="New test job" />
@@ -30,6 +34,7 @@ export default async function NewJobPage({
         sites={sites}
         staff={staff}
         defaultSiteId={siteId}
+        defaultToolType={defaultToolType}
         defaultTechnicianId={session.user.id}
       />
     </div>
